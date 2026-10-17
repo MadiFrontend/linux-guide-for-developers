@@ -43,7 +43,7 @@ The guide is written in **Persian (Farsi)** with a modern dark theme, sticky tab
    Download or clone the repo and open `index.html` in any modern browser.
 
 2. **Visit Online**  
-   visit `https://madifrontend.github.io/linux-guide-for-developers/`
+   visit [linux-guide-for-developers](https://madifrontend.github.io/linux-guide-for-developers/)
 
 ### Features
 
@@ -88,7 +88,7 @@ The guide is written in **Persian (Farsi)** with a modern dark theme, sticky tab
    فایل `index.html` را در مرورگر باز کن.
 
 2. **مشاهده آنلاین**  
-   برو به `https://madifrontend.github.io/linux-guide-for-developers/`
+   برو به [linux-guide-for-developers](https://madifrontend.github.io/linux-guide-for-developers/)
 
 ### ویژگی‌ها
 
