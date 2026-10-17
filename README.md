@@ -40,21 +40,10 @@ The guide is written in **Persian (Farsi)** with a modern dark theme, sticky tab
 ### How to Use
 
 1. **Just open it**  
-   Download or clone the repo and open `linux-guide-for-developers.html` in any modern browser.
+   Download or clone the repo and open `index.html` in any modern browser.
 
-2. **Serve locally (recommended)**  
-   ```bash
-   # Python
-   python3 -m http.server 8000
-
-   # or Node
-   npx serve .
-   ```
-   Then visit `http://localhost:8000/linux-guide-for-developers.html`
-
-3. **GitHub Pages**  
-   Enable GitHub Pages on this repository and the guide will be available at:  
-   `https://<your-username>.github.io/<repo-name>/linux-guide-for-developers.html`
+2. **Visit Online**  
+   visit `https://madifrontend.github.io/linux-guide-for-developers/`
 
 ### Features
 
@@ -96,19 +85,10 @@ The guide is written in **Persian (Farsi)** with a modern dark theme, sticky tab
 ### چطور استفاده کنم؟
 
 1. **باز کردن مستقیم**  
-   فایل `linux-guide-for-developers.html` را در مرورگر باز کن.
+   فایل `index.html` را در مرورگر باز کن.
 
-2. **سرو کردن محلی (پیشنهادی)**  
-   ```bash
-   python3 -m http.server 8000
-   # یا
-   npx serve .
-   ```
-   بعد برو به:  
-   `http://localhost:8000/linux-guide-for-developers.html`
-
-3. **GitHub Pages**  
-   GitHub Pages را روی ریپو فعال کن تا راهنما همیشه آنلاین باشد.
+2. **مشاهده آنلاین**  
+   برو به `https://madifrontend.github.io/linux-guide-for-developers/`
 
 ### ویژگی‌ها
 
@@ -126,19 +106,9 @@ The guide is written in **Persian (Farsi)** with a modern dark theme, sticky tab
 ```
 .
 ├── linux-guide-for-developers.html   # The complete guide (open this)
-└── README.md                         # This file
+
 ```
 
----
-
-## 🚀 Quick Start
-
-```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
-# Open the HTML file or serve it
-python3 -m http.server 8000
-```
 
 ---
 
