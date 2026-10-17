@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آموزش لینوکس برای برنامه‌نویس</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface2:#1c2333;
+  --border:#30363d;
+  --gold:#f0b040;
+  --blue:#58a6ff;
+  --green:#3fb950;
+  --cyan:#56d4dd;
+  --red:#f85149;
+  --text:#e6edf3;
+  --muted:#8b949e;
+  --code-bg:#0d1117;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Vazirmatn','Tahoma',sans-serif;
+  font-size:15.5px;
+  line-height:1.9;
+  direction:rtl;
+  text-align:right;
+}
+
+/* == LAYOUT == */
+.wrapper{display:flex;min-height:100vh}
+
+/* sidebar */
+.toc{
+  width:260px;min-width:260px;
+  background:var(--surface);
+  border-left:1px solid var(--border);
+  position:fixed;right:0;top:0;height:100vh;
+  overflow-y:auto;padding:18px 0;z-index:100;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.toc-title{
+  color:var(--gold);font-size:13px;font-weight:700;
+  padding:0 16px 10px;border-bottom:1px solid var(--border);
+  margin-bottom:8px;
+}
+.toc a{
+  display:block;color:var(--muted);text-decoration:none;
+  font-size:12px;padding:5px 16px;
+  border-right:2px solid transparent;transition:all .15s;
+}
+.toc a:hover{color:var(--text);background:var(--surface2);border-right-color:var(--gold)}
+.toc a.active{color:var(--gold);border-right-color:var(--gold)}
+.toc a.l2{padding-right:28px;font-size:11.5px}
+.toc a.l3{padding-right:40px;font-size:11px;color:#555d6e}
+
+/* main */
+.main{
+  margin-right:260px;max-width:920px;
+  padding:32px 44px 80px;width:100%;
+}
+
+/* == BANNER == */
+.banner{
+  background:linear-gradient(135deg,#161b22,#1a2332,#161b22);
+  border:1px solid var(--border);border-radius:14px;
+  padding:36px 40px;margin-bottom:44px;position:relative;overflow:hidden;
+}
+.banner::after{content:"\1F427";position:absolute;left:32px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.1}
+.banner h1{font-size:26px;font-weight:800;color:var(--gold);margin:0 0 8px;background:none;border:none;padding:0;display:block}
+.banner p{color:var(--muted);font-size:14px;margin:0}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tag{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:3px 12px;font-size:11px;color:var(--blue)}
+
+/* == HEADINGS == */
+h1{
+  color:var(--gold);font-size:22px;font-weight:800;
+  margin:48px 0 20px;padding:14px 18px;
+  background:rgba(240,176,64,.06);
+  border-right:4px solid var(--gold);border-radius:0 8px 8px 0;
+}
+h2{
+  color:var(--blue);font-size:18px;font-weight:700;
+  margin:38px 0 16px;padding:10px 16px;
+  background:rgba(88,166,255,.05);
+  border-right:3px solid var(--blue);border-radius:0 6px 6px 0;
+}
+h3{
+  color:var(--green);font-size:15.5px;font-weight:600;
+  margin:28px 0 12px;padding:8px 14px;
+  background:rgba(63,185,80,.04);
+  border-right:2px solid var(--green);border-radius:0 4px 4px 0;
+}
+
+/* == TEXT == */
+p{margin:10px 0;color:#c9d1d9}
+strong{color:#f0c050;font-weight:600}
+em{color:var(--cyan);font-style:normal}
+
+/* == CODE == */
+pre{
+  background:var(--code-bg)!important;
+  border:1px solid var(--border);border-radius:8px;
+  padding:18px 20px;overflow-x:auto;
+  margin:14px 0;direction:ltr;text-align:left;
+  font-size:13px;line-height:1.65;
+}
+code{
+  font-family:'JetBrains Mono','Fira Code','Consolas',monospace;
+  font-size:12.5px;
+  background:rgba(255,255,255,.06);
+  padding:2px 6px;border-radius:4px;
+  color:#e8c76a;direction:ltr;display:inline-block;
+}
+pre code{background:transparent;padding:0;color:#c9d1d9;font-size:13px}
+
+/* syntax highlight in pre */
+pre .kw{color:#c678dd} pre .st{color:#98c379}
+pre .dt{color:#e5c07b} pre .dv{color:#d19a66}
+pre .co{color:#5c6370;font-style:italic}
+
+/* == TABLES == */
+table{
+  width:100%;border-collapse:collapse;
+  margin:18px 0;font-size:13.5px;
+}
+th{
+  background:var(--surface2);color:var(--gold);
+  padding:10px 14px;text-align:right;font-weight:600;
+  border:1px solid var(--border);
+}
+td{
+  padding:9px 14px;border:1px solid var(--border);
+  color:#c9d1d9;vertical-align:top;line-height:1.6;
+}
+tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+tr:hover td{background:rgba(88,166,255,.05)}
+
+/* == LISTS == */
+ul,ol{padding-right:22px;margin:10px 0}
+li{margin:5px 0;color:#c9d1d9;line-height:1.75}
+
+/* == HR == */
+hr{border:none;border-top:1px solid var(--border);margin:36px 0}
+
+/* == BLOCKQUOTE == */
+blockquote{
+  background:var(--surface2);border-right:3px solid var(--blue);
+  border-radius:0 6px 6px 0;padding:12px 16px;
+  margin:12px 0;color:var(--muted);font-size:14px;
+}
+blockquote.tip{border-right-color:var(--green)}
+blockquote.warn{border-right-color:var(--red)}
+blockquote.tip strong{color:var(--green)}
+blockquote.warn strong{color:var(--red)}
+
+.wrong{color:#f85149;font-weight:600;direction:ltr;display:inline-block}
+.right{color:#3fb950;font-weight:600;direction:ltr;display:inline-block}
+.scenario-goal{color:var(--gold);font-weight:700}
+.scenario-fix{color:var(--cyan);font-weight:700}
+
+/* == SCROLL TOP == */
+.to-top{
+  position:fixed;bottom:28px;left:28px;
+  background:var(--gold);color:#000;border:none;
+  border-radius:50%;width:42px;height:42px;
+  font-size:18px;cursor:pointer;
+  display:none;align-items:center;justify-content:center;z-index:200;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+.to-top.show{display:flex}
+
+/* == RESPONSIVE == */
+@media(max-width:860px){
+  .toc{display:none}
+  .main{margin-right:0;padding:20px 16px}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<nav class="toc" id="toc">
+  <div class="toc-title">&#128209; فهرست مطالب</div>
+  <div id="toc-list"></div>
+</nav>
+
+<div class="main" id="content">
+
+  <div class="banner">
+    <h1 style="border:none;background:none;margin:0 0 8px;padding:0">&#128039; آموزش لینوکس برای برنامه‌نویس</h1>
+    <p>از ترمینال تا دیپلوی — راهنمای کامل و کاربردی لینوکس برای برنامه‌نویس‌هایی که می‌خواهند روی سرور مسلط شوند</p>
+    <div class="tags">
+      <span class="tag">Terminal</span>
+      <span class="tag">File System</span>
+      <span class="tag">Permissions</span>
+      <span class="tag">SSH</span>
+      <span class="tag">Process</span>
+      <span class="tag">systemd</span>
+      <span class="tag">Network</span>
+      <span class="tag">Bash Script</span>
+      <span class="tag">Deploy</span>
+      <span class="tag">Troubleshooting</span>
+    </div>
+  </div>
+
+  <!-- ==================== بخش صفر ==================== -->
+  <h1 id="intro">بخش صفر: مقدمات و ذهنیت درست</h1>
+
+  <h1 id="lesson-01">&#128039; درس ۰۱: لینوکس چیست و چرا برنامه‌نویس‌ها باید یاد بگیرند</h1>
+
+  <h2 id="l01-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>قبل از اینکه حتی یک دستور تایپ کنی، باید بدانی لینوکس چیست، چرا سرورهای دنیا روی آن می‌چرخند، و چرا یک برنامه‌نویس (حتی اگر فقط فرانت‌اند کار می‌کند) باید با آن راحت باشد.</p>
+  <ul>
+    <li>تفاوت اساسی لینوکس با ویندوز از نگاه یک برنامه‌نویس</li>
+    <li>توزیع‌های رایج و اینکه کدام را برای چه کاری انتخاب کنی</li>
+    <li>مفهوم Kernel و Shell</li>
+    <li>چطور یک سرور راه‌دور را مدیریت می‌کنی</li>
+  </ul>
+
+  <h2 id="l01-concepts">مفاهیم پایه</h2>
+  <p>لینوکس یک سیستم‌عامل <strong>متن‌باز</strong> است که هسته‌ی آن (Kernel) توسط لینوس توروالدز در ۱۹۹۱ نوشته شد. امروز تقریباً تمام سرورهای وب، ابری (AWS، DigitalOcean، Hetzner)، کانتینرها و حتی اندروید روی لینوکس اجرا می‌شوند.</p>
+  <p>برای یک برنامه‌نویس، لینوکس یعنی:</p>
+  <ul>
+    <li>محیطی که اپلیکیشن‌ات در آن واقعاً اجرا می‌شود (Production).</li>
+    <li>ابزاری قدرتمند برای اتوماسیون، دیپلوی و عیب‌یابی.</li>
+    <li>زبانی مشترک با تمام تیم DevOps و SysAdmin.</li>
+  </ul>
+
+  <h3>تفاوت لینوکس و ویندوز از نگاه برنامه‌نویس</h3>
+  <table>
+    <thead>
+      <tr><th>موضوع</th><th>ویندوز</th><th>لینوکس</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>مسیر فایل</td><td><code>C:\Users\me\app</code></td><td><code>/home/me/app</code></td></tr>
+      <tr><td>حساسیت به حروف</td><td>Case-insensitive</td><td><strong>Case-sensitive</strong> (<code>App.js</code> ≠ <code>app.js</code>)</td></tr>
+      <tr><td>جداکننده‌ی مسیر</td><td><code>\</code></td><td><code>/</code></td></tr>
+      <tr><td>مجوز فایل</td><td>ACL پیچیده‌تر</td><td>rwx ساده و قدرتمند</td></tr>
+      <tr><td>نصب نرم‌افزار</td><td>نصب‌کننده‌ی گرافیکی</td><td>مدیر بسته (<code>apt</code>/<code>dnf</code>)</td></tr>
+      <tr><td>سرویس‌ها</td><td>Services.msc</td><td><code>systemd</code></td></tr>
+      <tr><td>خط فرمان</td><td>PowerShell / CMD</td><td>Bash (قدرتمندتر برای اتوماسیون)</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote class="tip">
+    <strong>نکته:</strong> اگر عادت داری در ویندوز فایل را با حروف بزرگ و کوچک جابه‌جا بنویسی، در لینوکس فوراً با خطای «file not found» روبه‌رو می‌شوی. این یکی از اولین شوک‌های برنامه‌نویس‌های ویندوزی است.
+  </blockquote>
+
+  <h3>توزیع‌ها (Distributions)</h3>
+  <p>لینوکس خودش فقط Kernel است. توزیع‌ها بسته‌ی کامل سیستم‌عامل هستند:</p>
+  <table>
+    <thead>
+      <tr><th>توزیع</th><th>مناسب برای</th><th>مدیر بسته</th><th>یادداشت</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Ubuntu</strong></td><td>توسعه‌دهنده، سرور وب، یادگیری</td><td>apt</td><td>رایج‌ترین انتخاب برای برنامه‌نویس‌ها</td></tr>
+      <tr><td><strong>Debian</strong></td><td>سرور پایدار و محافظه‌کار</td><td>apt</td><td>پایه Ubuntu</td></tr>
+      <tr><td><strong>CentOS / Alma / Rocky</strong></td><td>محیط سازمانی، سازگاری با RHEL</td><td>dnf/yum</td><td>بعد از مرگ CentOS Stream، Alma/Rocky جایگزین شدند</td></tr>
+      <tr><td><strong>RHEL</strong></td><td>شرکت‌های بزرگ با پشتیبانی رسمی</td><td>dnf</td><td>پولی (با اشتراک)</td></tr>
+    </tbody>
+  </table>
+  <p>در این راهنما تقریباً تمام مثال‌ها روی <strong>Ubuntu 22.04/24.04</strong> هستند، چون اکثر برنامه‌نویس‌ها با آن شروع می‌کنند.</p>
+
+  <h3>Kernel و Shell</h3>
+  <p><strong>Kernel</strong> هسته‌ی سیستم‌عامل است که با سخت‌افزار حرف می‌زند (حافظه، CPU، دیسک، شبکه). تو تقریباً هرگز مستقیم با آن کار نمی‌کنی.</p>
+  <p><strong>Shell</strong> برنامه‌ای است که دستورهای تو را می‌گیرد و به Kernel می‌فرستد. رایج‌ترین Shell در سرورها <code>bash</code> است. وقتی SSH می‌زنی یا ترمینال باز می‌کنی، در واقع داخل یک Shell هستی.</p>
+
+  <h3>چطور سرور راه‌دور را مدیریت می‌کنی؟</h3>
+  <p>تقریباً همیشه از طریق <strong>SSH</strong>:</p>
+<pre><code>ssh user@192.168.1.50
+# یا
+ssh user@myserver.example.com</code></pre>
+  <p>بعد از ورود، تمام کارها با خط فرمان انجام می‌شود. گرافیک روی سرور تولید معمولاً نصب نیست (Headless).</p>
+
+  <h2 id="l01-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>uname -a</code></td><td>اطلاعات Kernel و معماری</td><td><code>uname -a</code></td><td>نسخه Kernel، hostname و معماری را نشان می‌دهد</td></tr>
+      <tr><td><code>cat /etc/os-release</code></td><td>شناسایی توزیع</td><td><code>cat /etc/os-release</code></td><td>نام و نسخه‌ی توزیع را می‌گوید</td></tr>
+      <tr><td><code>hostname</code></td><td>نام میزبان</td><td><code>hostname</code></td><td>نام سرور را چاپ می‌کند</td></tr>
+      <tr><td><code>hostnamectl</code></td><td>اطلاعات کامل سیستم</td><td><code>hostnamectl</code></td><td>OS، Kernel، Architecture</td></tr>
+      <tr><td><code>whoami</code></td><td>کاربر فعلی</td><td><code>whoami</code></td><td>نام کاربری که با آن لاگین هستی</td></tr>
+      <tr><td><code>id</code></td><td>شناسه کاربر و گروه‌ها</td><td><code>id</code></td><td>UID، GID و گروه‌های عضویت</td></tr>
+      <tr><td><code>uptime</code></td><td>مدت روشن بودن سرور</td><td><code>uptime</code></td><td>چند وقت است سرور روشن است + load</td></tr>
+      <tr><td><code>date</code></td><td>تاریخ و ساعت</td><td><code>date</code></td><td>زمان سیستم</td></tr>
+      <tr><td><code>cal</code></td><td>تقویم</td><td><code>cal</code></td><td>تقویم ماه جاری</td></tr>
+      <tr><td><code>clear</code></td><td>پاک کردن صفحه</td><td><code>clear</code> یا Ctrl+L</td><td>ترمینال را تمیز می‌کند</td></tr>
+      <tr><td><code>echo $SHELL</code></td><td>Shell فعلی</td><td><code>echo $SHELL</code></td><td>مسیر Shell پیش‌فرض</td></tr>
+      <tr><td><code>echo $0</code></td><td>نام Shell در حال اجرا</td><td><code>echo $0</code></td><td>معمولاً bash یا -bash</td></tr>
+      <tr><td><code>lsb_release -a</code></td><td>جزئیات Ubuntu/Debian</td><td><code>lsb_release -a</code></td><td>نسخه و Codename</td></tr>
+      <tr><td><code>arch</code></td><td>معماری CPU</td><td><code>arch</code></td><td>x86_64 یا aarch64</td></tr>
+      <tr><td><code>free -h</code></td><td>حافظه</td><td><code>free -h</code></td><td>RAM و Swap (نمای کلی)</td></tr>
+      <tr><td><code>df -h</code></td><td>فضای دیسک</td><td><code>df -h</code></td><td>فضای باقی‌مانده پارتیشن‌ها</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l01-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو ۱:</span> تازه به سرور SSH زدی و نمی‌دانی روی چه توزیعی هستی.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>cat /etc/os-release
+# یا
+hostnamectl</code></pre>
+  <p>📖 توضیح: فایل <code>/etc/os-release</code> استاندارد است و در تقریباً تمام توزیع‌های مدرن وجود دارد.</p>
+
+  <p><span class="scenario-goal">🎯 سناریو ۲:</span> می‌خواهی بدانی سرور چند روز است روشن است و آیا اخیراً ری‌استارت شده.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>uptime
+# 14:32:01 up 47 days,  3:12,  1 user,  load average: 0.08, 0.03, 0.01</code></pre>
+  <p>📖 توضیح: <code>up 47 days</code> یعنی ۴۷ روز است سرور ری‌استارت نشده. load average پایین یعنی سرور بیکار است.</p>
+
+  <h2 id="l01-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: فکر کردن که لینوکس همان اوبونتو است.</p>
+  <p>✅ درست: اوبونتو یک توزیع است. لینوکس هسته است.</p>
+  <p>💡 توضیح: وقتی کسی می‌گوید «لینوکس یاد بگیر»، معمولاً منظورش کار با خط فرمان و مفاهیم مشترک همه‌ی توزیع‌هاست.</p>
+
+  <p>❌ اشتباه: نصب محیط گرافیکی روی سرور تولید.</p>
+  <p>✅ درست: سرور Headless نگه دار و فقط از SSH استفاده کن.</p>
+  <p>💡 توضیح: GUI منابع می‌خورد و سطح حمله را بزرگ‌تر می‌کند.</p>
+
+  <p>❌ اشتباه: استفاده از root برای کارهای روزمره.</p>
+  <p>✅ درست: با کاربر عادی کار کن و فقط وقتی لازم است <code>sudo</code> بزن.</p>
+
+  <h2 id="l01-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>با دستور مناسب بفهم روی چه توزیعی و چه نسخه‌ای هستی.</li>
+    <li>با <code>uname -r</code> نسخه‌ی Kernel را پیدا کن.</li>
+    <li>خروجی <code>whoami</code> و <code>id</code> را مقایسه کن و ببین در چه گروه‌هایی عضو هستی.</li>
+  </ol>
+  <p><strong>پاسخ‌نامه:</strong></p>
+<pre><code>cat /etc/os-release
+uname -r
+whoami
+id</code></pre>
+
+  <h2 id="l01-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>لینوکس سیستم‌عامل غالب سرورهاست و برنامه‌نویس باید با آن راحت باشد.</li>
+    <li>توزیع‌ها (Ubuntu، Debian، Alma...) بسته‌ی کامل هستند؛ Kernel مشترک است.</li>
+    <li>Shell واسط بین تو و Kernel است؛ bash رایج‌ترین است.</li>
+    <li>مدیریت سرور عمدتاً از طریق SSH و خط فرمان انجام می‌شود.</li>
+  </ul>
+  <p>اولین قدم را برداشتی. حالا وقت آن است که با ترمینال دوست شوی.</p>
+
+  <!-- ==================== درس ۰۲ ==================== -->
+  <h1 id="lesson-02">&#128039; درس ۰۲: ترمینال، Shell و اولین دستورها</h1>
+
+  <h2 id="l02-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>ترمینال خانه‌ی جدید توست. باید بدانی دستور چطور ساخته می‌شود، چطور کمک بگیری، و چطور تاریخچه‌ی دستورها را مدیریت کنی.</p>
+  <ul>
+    <li>ساختار یک دستور لینوکس</li>
+    <li>کمک گرفتن با man و --help</li>
+    <li>تاریخچه، تکمیل خودکار و میانبرهای مفید</li>
+    <li>دستورهای اولیه‌ی روزمره</li>
+  </ul>
+
+  <h2 id="l02-concepts">مفاهیم پایه</h2>
+  <p><strong>Shell</strong> برنامه‌ای است که خط فرمان را تفسیر می‌کند. روی تقریباً تمام سرورها <code>bash</code> پیش‌فرض است.</p>
+  <p>ساختار کلی هر دستور:</p>
+<pre><code>command [options] [arguments]</code></pre>
+  <ul>
+    <li><code>command</code>: نام برنامه (مثل <code>ls</code>، <code>cp</code>)</li>
+    <li><code>options</code> یا <code>flags</code>: تنظیمات رفتار (مثل <code>-l</code> یا <code>--long</code>)</li>
+    <li><code>arguments</code>: ورودی‌ها (مسیر فایل، نام کاربر و ...)</li>
+  </ul>
+  <p>مثال:</p>
+<pre><code>ls -lah /var/log
+# ls     → دستور
+# -lah   → گزینه‌ها (long, all, human-readable)
+# /var/log → آرگومان (مسیر)</code></pre>
+
+  <blockquote class="tip">
+    <strong>نکته:</strong> گزینه‌های کوتاه با یک خط تیره (<code>-l</code>) و گزینه‌های بلند با دو خط تیره (<code>--all</code>) نوشته می‌شوند.
+  </blockquote>
+
+  <h3>کمک گرفتن</h3>
+<pre><code>command --help     # خلاصه و سریع
+man command        # راهنمای کامل (با q خارج شو)
+info command       # گاهی جزئیات بیشتر</code></pre>
+
+  <h3>میانبرهای حیاتی</h3>
+  <table>
+    <thead>
+      <tr><th>کلید</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Tab</td><td>تکمیل خودکار نام فایل/دستور</td></tr>
+      <tr><td>Ctrl + R</td><td>جست‌وجو در تاریخچه‌ی دستورها</td></tr>
+      <tr><td>Ctrl + C</td><td>متوقف کردن دستور در حال اجرا</td></tr>
+      <tr><td>Ctrl + L</td><td>پاک کردن صفحه (مثل clear)</td></tr>
+      <tr><td>Ctrl + A</td><td>رفتن به ابتدای خط</td></tr>
+      <tr><td>Ctrl + E</td><td>رفتن به انتهای خط</td></tr>
+      <tr><td>Ctrl + U</td><td>پاک کردن از مکان‌نما تا ابتدای خط</td></tr>
+      <tr><td>↑ / ↓</td><td>حرکت در تاریخچه</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l02-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>pwd</code></td><td>مسیر فعلی</td><td><code>pwd</code></td><td>Print Working Directory</td></tr>
+      <tr><td><code>whoami</code></td><td>کاربر فعلی</td><td><code>whoami</code></td><td>نام کاربری</td></tr>
+      <tr><td><code>date</code></td><td>تاریخ و ساعت</td><td><code>date '+%Y-%m-%d %H:%M'</code></td><td>می‌توان فرمت دلخواه داد</td></tr>
+      <tr><td><code>cal</code></td><td>تقویم</td><td><code>cal 2026</code></td><td>تقویم سال</td></tr>
+      <tr><td><code>uptime</code></td><td>مدت روشن بودن</td><td><code>uptime</code></td><td>load average هم نشان می‌دهد</td></tr>
+      <tr><td><code>clear</code></td><td>پاک کردن ترمینال</td><td><code>clear</code></td><td>یا Ctrl+L</td></tr>
+      <tr><td><code>history</code></td><td>تاریخچه‌ی دستورها</td><td><code>history | tail -20</code></td><td>آخرین ۲۰ دستور</td></tr>
+      <tr><td><code>!!</code></td><td>اجرای مجدد آخرین دستور</td><td><code>sudo !!</code></td><td>مفید وقتی فراموش کردی sudo بزنی</td></tr>
+      <tr><td><code>!n</code></td><td>اجرای دستور شماره‌ی n</td><td><code>!142</code></td><td>از روی شماره‌ی history</td></tr>
+      <tr><td><code>echo</code></td><td>چاپ متن</td><td><code>echo "Hello"</code></td><td>همچنین برای متغیرها</td></tr>
+      <tr><td><code>type</code></td><td>نوع دستور</td><td><code>type ls</code></td><td>ببین alias است یا باینری</td></tr>
+      <tr><td><code>which</code></td><td>مسیر باینری</td><td><code>which python3</code></td><td>کجا نصب شده</td></tr>
+      <tr><td><code>whatis</code></td><td>توضیح یک‌خطی</td><td><code>whatis ls</code></td><td>خلاصه از man</td></tr>
+      <tr><td><code>man</code></td><td>راهنمای کامل</td><td><code>man ls</code></td><td>با / جست‌وجو کن، با q خارج شو</td></tr>
+      <tr><td><code>help</code></td><td>کمک دستورات داخلی bash</td><td><code>help cd</code></td><td>برای built-inها</td></tr>
+      <tr><td><code>exit</code></td><td>خروج از Shell</td><td><code>exit</code></td><td>یا Ctrl+D</td></tr>
+      <tr><td><code>alias</code></td><td>تعریف نام مستعار</td><td><code>alias ll='ls -lah'</code></td><td>موقت تا پایان نشست</td></tr>
+      <tr><td><code>env</code></td><td>متغیرهای محیطی</td><td><code>env | grep PATH</code></td><td>لیست متغیرها</td></tr>
+      <tr><td><code>printenv</code></td><td>چاپ یک متغیر</td><td><code>printenv HOME</code></td><td>مقدار یک متغیر خاص</td></tr>
+      <tr><td><code>echo $PATH</code></td><td>مسیرهای جست‌وجوی دستور</td><td><code>echo $PATH</code></td><td>مهم برای فهمیدن چرا دستوری پیدا نمی‌شود</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l02-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> دیروز دستوری زدی که خیلی مفید بود ولی یادت نیست چه بود.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>history | grep docker
+# یا سریع‌تر:
+Ctrl+R
+# بعد کلمه‌ی کلیدی را تایپ کن</code></pre>
+  <p>📖 توضیح: Ctrl+R حالت جست‌وجوی معکوس در history را فعال می‌کند.</p>
+
+  <h2 id="l02-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: حفظ کردن همه‌ی فلگ‌ها.</p>
+  <p>✅ درست: یاد بگیر چطور با <code>--help</code> و <code>man</code> کمک بگیری.</p>
+
+  <p>❌ اشتباه: کپی‌پیست کردن دستور از اینترنت بدون فهمیدن.</p>
+  <p>✅ درست: همیشه اول بفهم دستور چه می‌کند، مخصوصاً اگر <code>sudo</code> یا <code>rm</code> دارد.</p>
+
+  <p>❌ اشتباه: بستن ترمینال وقتی دستور طولانی در حال اجراست.</p>
+  <p>✅ درست: از <code>tmux</code> یا <code>screen</code> استفاده کن (درس ۱۰).</p>
+
+  <h2 id="l02-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>با <code>man ls</code> وارد راهنما شو و با فشردن <code>/</code> کلمه‌ی <code>human</code> را جست‌وجو کن.</li>
+    <li>یک alias به نام <code>ll</code> بساز که <code>ls -lah</code> را اجرا کند.</li>
+    <li>با Ctrl+R آخرین دستوری که شامل کلمه‌ی <code>apt</code> بوده را پیدا کن.</li>
+  </ol>
+
+  <h2 id="l02-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>هر دستور از نام + گزینه + آرگومان ساخته می‌شود.</li>
+    <li><code>--help</code> و <code>man</code> بهترین دوستان تو هستند.</li>
+    <li>Tab، Ctrl+R و history سرعت کارت را چند برابر می‌کنند.</li>
+  </ul>
+  <p>حالا ترمینال دیگر ترسناک نیست. برو سراغ فایل‌سیستم.</p>
+
+  <!-- ==================== بخش اول ==================== -->
+  <h1 id="filesystem">بخش اول: فایل‌سیستم و مدیریت فایل</h1>
+
+  <h1 id="lesson-03">&#128039; درس ۰۳: ساختار فایل‌سیستم لینوکس (FHS)</h1>
+
+  <h2 id="l03-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>در لینوکس همه‌چیز فایل است. باید بدانی هر پوشه‌ی ریشه چه کاری می‌کند تا وقتی لاگ می‌خوانی یا کانفیگ تغییر می‌دهی گم نشوی.</p>
+  <ul>
+    <li>استاندارد FHS و پوشه‌های اصلی</li>
+    <li>تفاوت مسیر مطلق و نسبی</li>
+    <li>معنی ~ و . و ..</li>
+  </ul>
+
+  <h2 id="l03-concepts">مفاهیم پایه</h2>
+  <p>فایل‌سیستم لینوکس از یک ریشه (<code>/</code>) شروع می‌شود و همه‌ی دیسک‌ها و پارتیشن‌ها زیر آن mount می‌شوند. برخلاف ویندوز که چند درایو (C:، D:) دارد، اینجا همه چیز زیر یک درخت واحد است.</p>
+
+  <h3>پوشه‌های مهم ریشه</h3>
+  <table>
+    <thead>
+      <tr><th>مسیر</th><th>کاربرد</th><th>چرا برای برنامه‌نویس مهم است</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/</code></td><td>ریشه‌ی کل فایل‌سیستم</td><td>نقطه‌ی شروع همه چیز</td></tr>
+      <tr><td><code>/home</code></td><td>خانه‌ی کاربران عادی</td><td>کد پروژه‌هایت معمولاً اینجاست</td></tr>
+      <tr><td><code>/root</code></td><td>خانه‌ی کاربر root</td><td>جدا از /home</td></tr>
+      <tr><td><code>/etc</code></td><td>فایل‌های پیکربندی سیستم</td><td>nginx، ssh، systemd و ...</td></tr>
+      <tr><td><code>/var</code></td><td>داده‌های متغیر (لاگ، کش، دیتابیس)</td><td><code>/var/log</code> خانه‌ی لاگ‌هاست</td></tr>
+      <tr><td><code>/tmp</code></td><td>فایل‌های موقت</td><td>بعد از ری‌استارت پاک می‌شود</td></tr>
+      <tr><td><code>/usr</code></td><td>برنامه‌ها و کتابخانه‌های کاربران</td><td>باینری‌های نصب‌شده با apt</td></tr>
+      <tr><td><code>/opt</code></td><td>نرم‌افزارهای شخص ثالث</td><td>گاهی Node یا نرم‌افزارهای proprietary</td></tr>
+      <tr><td><code>/bin</code> و <code>/sbin</code></td><td>دستورهای ضروری سیستم</td><td>حتی در حالت تک‌کاربره لازم‌اند</td></tr>
+      <tr><td><code>/dev</code></td><td>دستگاه‌ها به‌صورت فایل</td><td>دیسک‌ها، ترمینال‌ها</td></tr>
+      <tr><td><code>/proc</code></td><td>اطلاعات پروسه‌ها و Kernel</td><td>مجازی — روی دیسک نیست</td></tr>
+      <tr><td><code>/sys</code></td><td>اطلاعات سخت‌افزار و Kernel</td><td>مشابه /proc</td></tr>
+      <tr><td><code>/var/www</code></td><td>معمولاً ریشه‌ی وب‌سرور</td><td>محل رایج برای فایل‌های سایت</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote class="tip">
+    <strong>نکته برنامه‌نویسی:</strong> فایل <code>.env</code> پروژه‌ات را هرگز در مسیری که وب‌سرور مستقیماً سرو می‌کند نگذار. بهتر است خارج از document root باشد.
+  </blockquote>
+
+  <h3>مسیر مطلق و نسبی</h3>
+  <ul>
+    <li><strong>مطلق:</strong> از ریشه شروع می‌شود → <code>/home/ali/projects/myapp</code></li>
+    <li><strong>نسبی:</strong> نسبت به مکان فعلی → <code>projects/myapp</code> یا <code>../logs</code></li>
+  </ul>
+  <p>نمادهای خاص:</p>
+  <ul>
+    <li><code>~</code> = خانه‌ی کاربر فعلی (<code>/home/ali</code>)</li>
+    <li><code>.</code> = پوشه‌ی فعلی</li>
+    <li><code>..</code> = پوشه‌ی والد</li>
+  </ul>
+
+  <h2 id="l03-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>pwd</code></td><td>مسیر فعلی</td><td><code>pwd</code></td><td>همیشه بدانی کجایی</td></tr>
+      <tr><td><code>cd</code></td><td>تغییر پوشه</td><td><code>cd /var/log</code></td><td>Change Directory</td></tr>
+      <tr><td><code>cd ~</code> یا <code>cd</code></td><td>رفتن به خانه</td><td><code>cd</code></td><td>سریع‌ترین راه برگشت به home</td></tr>
+      <tr><td><code>cd -</code></td><td>برگشت به پوشه‌ی قبلی</td><td><code>cd -</code></td><td>مثل دکمه‌ی Back</td></tr>
+      <tr><td><code>cd ..</code></td><td>یک سطح بالاتر</td><td><code>cd ../..</code></td><td>دو سطح بالاتر</td></tr>
+      <tr><td><code>ls /</code></td><td>محتوای ریشه</td><td><code>ls /</code></td><td>ببین چه پوشه‌هایی هست</td></tr>
+      <tr><td><code>ls -ld /etc</code></td><td>اطلاعات خود پوشه</td><td><code>ls -ld /var/log</code></td><td>نه محتوای داخلش</td></tr>
+      <tr><td><code>realpath</code></td><td>مسیر مطلق واقعی</td><td><code>realpath ./config</code></td><td>symlinkها را حل می‌کند</td></tr>
+      <tr><td><code>readlink -f</code></td><td>مشابه realpath</td><td><code>readlink -f /usr/bin/python3</code></td><td>مسیر نهایی باینری</td></tr>
+      <tr><td><code>df -h /</code></td><td>فضای پارتیشن ریشه</td><td><code>df -h /</code></td><td>چقدر جا مانده</td></tr>
+      <tr><td><code>du -sh /var/log</code></td><td>حجم یک پوشه</td><td><code>du -sh /var/log</code></td><td>خلاصه و خوانا</td></tr>
+      <tr><td><code>lsblk</code></td><td>دیسک‌ها و پارتیشن‌ها</td><td><code>lsblk</code></td><td>نمای درختی دیسک‌ها</td></tr>
+      <tr><td><code>findmnt</code></td><td>درخت mount</td><td><code>findmnt</code></td><td>خواناتر از mount</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l03-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> می‌خواهی بفهمی لاگ‌های nginx کجا هستند.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>ls /var/log/nginx/
+# معمولاً access.log و error.log</code></pre>
+  <p>📖 توضیح: تقریباً تمام لاگ‌های سرویس‌ها زیر <code>/var/log</code> هستند.</p>
+
+  <h2 id="l03-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: ذخیره کردن پروژه‌ها در <code>/tmp</code>.</p>
+  <p>✅ درست: پروژه‌ها را در <code>/home/user/</code> یا <code>/opt/</code> نگه دار.</p>
+  <p>💡 توضیح: <code>/tmp</code> ممکن است هنگام ری‌استارت پاک شود.</p>
+
+  <p>❌ اشتباه: ویرایش فایل‌های <code>/etc</code> بدون بکاپ.</p>
+  <p>✅ درست: قبل از تغییر، کپی بگیر:</p>
+<pre><code>sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak</code></pre>
+
+  <h2 id="l03-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>با <code>cd</code> به <code>/var/log</code> برو و محتوای آن را لیست کن.</li>
+    <li>با یک دستور به home برگرد.</li>
+    <li>حجم پوشه‌ی <code>/var/log</code> را با <code>du</code> ببین.</li>
+  </ol>
+
+  <h2 id="l03-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>همه چیز از <code>/</code> شروع می‌شود.</li>
+    <li><code>/etc</code> کانفیگ، <code>/var/log</code> لاگ، <code>/home</code> خانه‌ی کاربران.</li>
+    <li>مسیر مطلق از ریشه، نسبی از مکان فعلی.</li>
+  </ul>
+  <p>حالا می‌دانی نقشه کجاست. وقت ناوبری است.</p>
+
+  <!-- ==================== درس ۰۴ ==================== -->
+  <h1 id="lesson-04">&#128039; درس ۰۴: ناوبری و مدیریت فایل‌ها</h1>
+
+  <h2 id="l04-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>ساخت، کپی، جابه‌جایی، حذف و پیدا کردن فایل‌ها — کارهای روزمره‌ای که هر روز انجام می‌دهی.</p>
+  <ul>
+    <li>تمام فلگ‌های مهم ls</li>
+    <li>mkdir، cp، mv، rm به‌صورت ایمن</li>
+    <li>find — قوی‌ترین ابزار جست‌وجوی فایل</li>
+  </ul>
+
+  <h2 id="l04-concepts">مفاهیم پایه</h2>
+  <p>در لینوکس فایل و پوشه از نظر دستورها خیلی شبیه هم رفتار می‌کنند، اما بعضی فلگ‌ها مخصوص پوشه هستند (مثل <code>-R</code> برای بازگشتی).</p>
+
+  <blockquote class="warn">
+    <strong>هشدار:</strong> دستور <code>rm -rf</code> برگشت‌ناپذیر است. سطل آشغالی وجود ندارد. همیشه دو بار مسیر را چک کن.
+  </blockquote>
+
+  <h2 id="l04-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ls</code></td><td>لیست فایل‌ها</td><td><code>ls</code></td><td>پایه</td></tr>
+      <tr><td><code>ls -l</code></td><td>فرمت بلند</td><td><code>ls -l</code></td><td>مجوز، مالک، حجم، تاریخ</td></tr>
+      <tr><td><code>ls -a</code></td><td>نمایش فایل‌های مخفی</td><td><code>ls -a</code></td><td>فایل‌هایی که با . شروع می‌شوند</td></tr>
+      <tr><td><code>ls -lah</code></td><td>ترکیب رایج</td><td><code>ls -lah</code></td><td>long + all + human-readable</td></tr>
+      <tr><td><code>ls -lt</code></td><td>مرتب بر اساس زمان</td><td><code>ls -lt</code></td><td>جدیدترین اول</td></tr>
+      <tr><td><code>ls -lS</code></td><td>مرتب بر اساس حجم</td><td><code>ls -lS</code></td><td>بزرگ‌ترین اول</td></tr>
+      <tr><td><code>ls -R</code></td><td>بازگشتی</td><td><code>ls -R</code></td><td>تمام زیرپوشه‌ها</td></tr>
+      <tr><td><code>mkdir</code></td><td>ساخت پوشه</td><td><code>mkdir myapp</code></td><td></td></tr>
+      <tr><td><code>mkdir -p</code></td><td>ساخت تو در تو</td><td><code>mkdir -p projects/myapp/src</code></td><td>والدها را هم می‌سازد</td></tr>
+      <tr><td><code>touch</code></td><td>ساخت فایل خالی یا به‌روز کردن زمان</td><td><code>touch index.js</code></td><td></td></tr>
+      <tr><td><code>cp</code></td><td>کپی</td><td><code>cp file.txt backup/</code></td><td></td></tr>
+      <tr><td><code>cp -r</code></td><td>کپی پوشه</td><td><code>cp -r src/ src_backup/</code></td><td>ضروری برای پوشه</td></tr>
+      <tr><td><code>cp -a</code></td><td>کپی با حفظ تمام ویژگی‌ها</td><td><code>cp -a app/ app.bak/</code></td><td>مجوز و زمان حفظ می‌شود</td></tr>
+      <tr><td><code>mv</code></td><td>جابه‌جایی یا تغییر نام</td><td><code>mv old.js new.js</code></td><td></td></tr>
+      <tr><td><code>rm</code></td><td>حذف فایل</td><td><code>rm file.txt</code></td><td></td></tr>
+      <tr><td><code>rm -r</code></td><td>حذف پوشه</td><td><code>rm -r old_project/</code></td><td></td></tr>
+      <tr><td><code>rm -i</code></td><td>حذف با تأیید</td><td><code>rm -i *.log</code></td><td>برای هر فایل می‌پرسد</td></tr>
+      <tr><td><code>rmdir</code></td><td>حذف پوشه‌ی خالی</td><td><code>rmdir empty_dir</code></td><td>فقط اگر خالی باشد</td></tr>
+      <tr><td><code>find</code></td><td>جست‌وجوی پیشرفته</td><td><code>find . -name "*.js"</code></td><td>بسیار قدرتمند</td></tr>
+      <tr><td><code>find . -type f -mtime -1</code></td><td>فایل‌های تغییر یافته در ۲۴ ساعت</td><td></td><td>برای پیدا کردن تغییرات اخیر</td></tr>
+      <tr><td><code>find . -size +100M</code></td><td>فایل‌های بزرگ‌تر از ۱۰۰ مگ</td><td></td><td>پیدا کردن فایل‌های حجیم</td></tr>
+      <tr><td><code>file</code></td><td>نوع فایل</td><td><code>file script.sh</code></td><td>متن، باینری، تصویر و ...</td></tr>
+      <tr><td><code>stat</code></td><td>جزئیات کامل فایل</td><td><code>stat package.json</code></td><td>inode، زمان‌ها، مجوز</td></tr>
+      <tr><td><code>ln -s</code></td><td>ساخت symlink</td><td><code>ln -s /var/www/app current</code></td><td>لینک نمادین</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l04-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو ۱:</span> می‌خواهی تمام فایل‌های <code>.log</code> قدیمی‌تر از ۷ روز را پیدا و حذف کنی.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code># اول فقط پیدا کن (بدون حذف)
+find /var/log -name "*.log" -mtime +7
+
+# اگر مطمئن شدی:
+find /var/log -name "*.log" -mtime +7 -delete</code></pre>
+  <p>📖 توضیح: <code>-mtime +7</code> یعنی بیش از ۷ روز از آخرین تغییر گذشته. همیشه اول بدون <code>-delete</code> اجرا کن.</p>
+
+  <p><span class="scenario-goal">🎯 سناریو ۲:</span> پروژه‌ات پر از <code>node_modules</code> شده و می‌خواهی همه‌شان را پیدا کنی.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>find ~ -type d -name "node_modules"</code></pre>
+
+  <h2 id="l04-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: <code>rm -rf /</code> یا <code>rm -rf /*</code></p>
+  <p>✅ درست: هرگز این دستور را نزن. حتی به شوخی.</p>
+
+  <p>❌ اشتباه: <code>cp -r src/* dest/</code> وقتی dest وجود ندارد.</p>
+  <p>✅ درست: اول <code>mkdir dest</code> کن یا از <code>cp -r src dest</code> استفاده کن.</p>
+
+  <p>❌ اشتباه: فراموش کردن <code>-r</code> هنگام کپی پوشه.</p>
+  <p>✅ درست: برای پوشه همیشه <code>cp -r</code> یا <code>cp -a</code>.</p>
+
+  <h2 id="l04-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>یک ساختار پوشه بساز: <code>~/projects/demo/{src,tests,docs}</code></li>
+    <li>چند فایل خالی داخل src بساز و با <code>ls -lah</code> ببین.</li>
+    <li>با find تمام فایل‌های <code>.js</code> داخل home را پیدا کن.</li>
+  </ol>
+<pre><code>mkdir -p ~/projects/demo/{src,tests,docs}
+touch ~/projects/demo/src/{index,app,utils}.js
+ls -lah ~/projects/demo/src
+find ~ -name "*.js" 2>/dev/null</code></pre>
+
+  <h2 id="l04-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li><code>ls -lah</code> دوست روزمره‌ات است.</li>
+    <li><code>find</code> برای جست‌وجوی قدرتمند ضروری است.</li>
+    <li><code>rm -rf</code> خطرناک است — همیشه مسیر را دوباره بخوان.</li>
+  </ul>
+  <p>حالا می‌توانی فایل‌ها را مثل یک حرفه‌ای جابه‌جا کنی.</p>
+
+  <!-- ==================== درس ۰۵ ==================== -->
+  <h1 id="lesson-05">&#128039; درس ۰۵: مشاهده و ویرایش فایل‌ها</h1>
+
+  <h2 id="l05-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>خواندن لاگ، ویرایش کانفیگ و کار با فایل‌های متنی — بدون این مهارت‌ها عملاً نمی‌توانی روی سرور کار کنی.</p>
+  <ul>
+    <li>cat، less، head، tail</li>
+    <li>nano و vim در حد ضروری</li>
+    <li>ابزارهای متنی ساده: wc، sort، cut</li>
+  </ul>
+
+  <h2 id="l05-concepts">مفاهیم پایه</h2>
+  <p>برای فایل‌های کوچک <code>cat</code> کافی است. برای فایل‌های بزرگ (لاگ‌ها) حتماً از <code>less</code> یا <code>tail</code> استفاده کن.</p>
+  <p><code>tail -f</code> یکی از پرکاربردترین دستورها برای برنامه‌نویس است: لاگ را زنده می‌بینی.</p>
+
+  <h3>vim در حد زنده ماندن</h3>
+  <table>
+    <thead>
+      <tr><th>کلید</th><th>کار</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>i</code></td><td>ورود به حالت Insert</td></tr>
+      <tr><td><code>Esc</code></td><td>برگشت به حالت Normal</td></tr>
+      <tr><td><code>:w</code></td><td>ذخیره</td></tr>
+      <tr><td><code>:q</code></td><td>خروج</td></tr>
+      <tr><td><code>:wq</code> یا <code>ZZ</code></td><td>ذخیره و خروج</td></tr>
+      <tr><td><code>:q!</code></td><td>خروج بدون ذخیره</td></tr>
+      <tr><td><code>dd</code></td><td>حذف خط فعلی</td></tr>
+      <tr><td><code>yy</code></td><td>کپی خط</td></tr>
+      <tr><td><code>p</code></td><td>چسباندن</td></tr>
+      <tr><td><code>/word</code></td><td>جست‌وجو</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l05-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>cat</code></td><td>چاپ کل فایل</td><td><code>cat package.json</code></td><td>برای فایل‌های کوچک</td></tr>
+      <tr><td><code>less</code></td><td>مشاهده صفحه‌به‌صفحه</td><td><code>less /var/log/syslog</code></td><td>با q خارج شو</td></tr>
+      <tr><td><code>head</code></td><td>ابتدای فایل</td><td><code>head -n 20 file.log</code></td><td>۲۰ خط اول</td></tr>
+      <tr><td><code>tail</code></td><td>انتهای فایل</td><td><code>tail -n 50 file.log</code></td><td>۵۰ خط آخر</td></tr>
+      <tr><td><code>tail -f</code></td><td>دنبال کردن زنده</td><td><code>tail -f /var/log/nginx/error.log</code></td><td>حیاتی برای دیباگ</td></tr>
+      <tr><td><code>tail -F</code></td><td>دنبال کردن حتی بعد از rotate</td><td><code>tail -F app.log</code></td><td>بهتر از -f برای لاگ‌های rotate شده</td></tr>
+      <tr><td><code>nano</code></td><td>ویرایشگر ساده</td><td><code>nano config.env</code></td><td>Ctrl+O ذخیره، Ctrl+X خروج</td></tr>
+      <tr><td><code>vim</code></td><td>ویرایشگر قدرتمند</td><td><code>vim app.js</code></td><td>حداقل‌ها را یاد بگیر</td></tr>
+      <tr><td><code>echo</code></td><td>چاپ یا نوشتن</td><td><code>echo "hello" > file.txt</code></td><td>> بازنویسی، >> الحاق</td></tr>
+      <tr><td><code>wc</code></td><td>شمارش</td><td><code>wc -l file.txt</code></td><td>تعداد خط، کلمه، کاراکتر</td></tr>
+      <tr><td><code>sort</code></td><td>مرتب‌سازی</td><td><code>sort names.txt</code></td><td></td></tr>
+      <tr><td><code>uniq</code></td><td>حذف تکراری‌های متوالی</td><td><code>sort file | uniq</code></td><td>معمولاً با sort</td></tr>
+      <tr><td><code>cut</code></td><td>برش ستون‌ها</td><td><code>cut -d: -f1 /etc/passwd</code></td><td>جداکننده و فیلد</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l05-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> اپ Node خطا می‌دهد و می‌خواهی لاگ را زنده ببینی.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>tail -f /var/log/myapp/error.log
+# یا اگر با systemd اجرا می‌شود:
+journalctl -u myapp -f</code></pre>
+
+  <h2 id="l05-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: <code>cat</code> کردن یک فایل چند صد مگابایتی.</p>
+  <p>✅ درست: از <code>less</code> یا <code>tail</code> استفاده کن.</p>
+
+  <p>❌ اشتباه: گیر کردن در vim و ندانستن چطور خارج شوی.</p>
+  <p>✅ درست: <code>Esc</code> بعد <code>:q!</code> و Enter.</p>
+
+  <h2 id="l05-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>با <code>tail -n 30</code> سی خط آخر یک لاگ را ببین.</li>
+    <li>یک فایل با nano بساز، چیزی بنویس و ذخیره کن.</li>
+    <li>تعداد خطوط فایل <code>/etc/passwd</code> را با wc بشمار.</li>
+  </ol>
+
+  <h2 id="l05-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li><code>tail -f</code> بهترین دوست دیباگ است.</li>
+    <li>nano برای کارهای سریع، vim برای سرورهایی که فقط آن را دارند.</li>
+    <li>هرگز فایل بزرگ را با cat باز نکن.</li>
+  </ul>
+  <p>حالا می‌توانی لاگ بخوانی و کانفیگ ویرایش کنی.</p>
+
+  <!-- ==================== درس ۰۶ ==================== -->
+  <h1 id="lesson-06">&#128039; درس ۰۶: جست‌وجو در فایل و محتوا</h1>
+
+  <h2 id="l06-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>پیدا کردن یک خطا در هزاران خط لاگ، یا پیدا کردن جایی که یک تابع صدا زده شده — با grep و دوستانش.</p>
+  <ul>
+    <li>grep با فلگ‌های مهم</li>
+    <li>ترکیب find و grep</li>
+    <li>locate برای جست‌وجوی سریع نام فایل</li>
+  </ul>
+
+  <h2 id="l06-concepts">مفاهیم پایه</h2>
+  <p><code>grep</code> الگو را در متن جست‌وجو می‌کند. برای برنامه‌نویس، تقریباً هر روز از آن استفاده می‌شود.</p>
+
+  <h2 id="l06-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>grep</code></td><td>جست‌وجوی متن</td><td><code>grep "error" app.log</code></td><td></td></tr>
+      <tr><td><code>grep -i</code></td><td>بدون حساسیت به حروف</td><td><code>grep -i "error" app.log</code></td><td>Error و ERROR را هم پیدا می‌کند</td></tr>
+      <tr><td><code>grep -r</code></td><td>بازگشتی در پوشه‌ها</td><td><code>grep -r "TODO" src/</code></td><td></td></tr>
+      <tr><td><code>grep -n</code></td><td>نمایش شماره خط</td><td><code>grep -n "function" app.js</code></td><td></td></tr>
+      <tr><td><code>grep -v</code></td><td>خطوطی که مطابقت ندارند</td><td><code>grep -v "DEBUG" app.log</code></td><td>حذف خطوط DEBUG</td></tr>
+      <tr><td><code>grep -E</code></td><td>عبارات باقاعده توسعه‌یافته</td><td><code>grep -E "error|warn" app.log</code></td><td>یا egrep</td></tr>
+      <tr><td><code>grep -c</code></td><td>تعداد تطابق‌ها</td><td><code>grep -c "404" access.log</code></td><td></td></tr>
+      <tr><td><code>grep -l</code></td><td>فقط نام فایل‌های دارای تطابق</td><td><code>grep -rl "password" .</code></td><td></td></tr>
+      <tr><td><code>grep -A 3</code></td><td>۳ خط بعد از تطابق</td><td><code>grep -A 3 "Exception" app.log</code></td><td>Context بعد</td></tr>
+      <tr><td><code>grep -B 2</code></td><td>۲ خط قبل</td><td><code>grep -B 2 "ERROR" app.log</code></td><td></td></tr>
+      <tr><td><code>grep -C 2</code></td><td>۲ خط قبل و بعد</td><td><code>grep -C 2 "ERROR"</code></td><td></td></tr>
+      <tr><td><code>find . -name "*.js" | xargs grep "fetch"</code></td><td>جست‌وجو فقط در فایل‌های خاص</td><td></td><td>ترکیب قدرتمند</td></tr>
+      <tr><td><code>locate</code></td><td>جست‌وجوی سریع نام فایل</td><td><code>locate nginx.conf</code></td><td>نیاز به updatedb دارد</td></tr>
+      <tr><td><code>which</code></td><td>مسیر دستور</td><td><code>which node</code></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l06-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> می‌خواهی ببینی چند بار خطای ۵۰۰ در لاگ nginx آمده.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>grep -c " 500 " /var/log/nginx/access.log
+# یا برای جزئیات:
+grep " 500 " /var/log/nginx/access.log | tail -20</code></pre>
+
+  <h2 id="l06-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: <code>grep -r</code> روی کل دیسک بدون محدودیت.</p>
+  <p>✅ درست: همیشه مسیر و نوع فایل را محدود کن.</p>
+
+  <p>❌ اشتباه: فراموش کردن اینکه grep به حروف حساس است.</p>
+  <p>✅ درست: وقتی مطمئن نیستی از <code>-i</code> استفاده کن.</p>
+
+  <h2 id="l06-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>تمام خطوط حاوی کلمه‌ی root در <code>/etc/passwd</code> را پیدا کن.</li>
+    <li>در یک پروژه‌ی فرضی، تمام TODOها را با شماره خط پیدا کن.</li>
+  </ol>
+
+  <h2 id="l06-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>grep ابزار اصلی جست‌وجوی متن است.</li>
+    <li>فلگ‌های <code>-i -r -n -v -C</code> را خوب یاد بگیر.</li>
+    <li>ترکیب find + grep بسیار قدرتمند است.</li>
+  </ul>
+  <p>حالا می‌توانی در هر لاگی سوزن را پیدا کنی.</p>
+
+  <!-- ==================== بخش دوم ==================== -->
+  <h1 id="users-perms">بخش دوم: کاربران، مجوزها و امنیت پایه</h1>
+
+  <h1 id="lesson-07">&#128039; درس ۰۷: کاربران و گروه‌ها</h1>
+
+  <h2 id="l07-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>چطور کاربر بسازی، به گروه اضافه کنی، و با sudo کار کنی — بدون اینکه همه‌چیز را با root خراب کنی.</p>
+  <ul>
+    <li>root، sudo و تفاوت‌شان</li>
+    <li>ساخت و مدیریت کاربر و گروه</li>
+    <li>فایل‌های /etc/passwd و /etc/shadow</li>
+  </ul>
+
+  <h2 id="l07-concepts">مفاهیم پایه</h2>
+  <p><strong>root</strong> کاربر فوق‌العاده است (UID=0). می‌تواند هر کاری بکند. برای کارهای روزمره از آن استفاده نکن.</p>
+  <p><strong>sudo</strong> اجازه‌ی اجرای موقت دستور با دسترسی root را به کاربران مجاز می‌دهد.</p>
+
+  <blockquote class="warn">
+    <strong>هشدار:</strong> هرگز به‌صورت پیش‌فرض با root لاگین نکن. یک کاربر عادی بساز و او را به گروه sudo اضافه کن.
+  </blockquote>
+
+  <h2 id="l07-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>whoami</code></td><td>کاربر فعلی</td><td><code>whoami</code></td><td></td></tr>
+      <tr><td><code>id</code></td><td>UID و گروه‌ها</td><td><code>id ali</code></td><td></td></tr>
+      <tr><td><code>sudo</code></td><td>اجرا با دسترسی root</td><td><code>sudo apt update</code></td><td></td></tr>
+      <tr><td><code>sudo -i</code></td><td>ورود به shell ریشه</td><td><code>sudo -i</code></td><td>موقت</td></tr>
+      <tr><td><code>su -</code></td><td>تعویض کاربر</td><td><code>su - ali</code></td><td>نیاز به رمز کاربر مقصد</td></tr>
+      <tr><td><code>adduser</code></td><td>ساخت کاربر (دوستانه)</td><td><code>sudo adduser deploy</code></td><td>در اوبونتو ترجیح داده می‌شود</td></tr>
+      <tr><td><code>useradd</code></td><td>ساخت کاربر (سطح پایین)</td><td><code>sudo useradd -m -s /bin/bash deploy</code></td><td></td></tr>
+      <tr><td><code>usermod</code></td><td>تغییر کاربر</td><td><code>sudo usermod -aG sudo deploy</code></td><td>اضافه به گروه</td></tr>
+      <tr><td><code>userdel</code></td><td>حذف کاربر</td><td><code>sudo userdel -r deploy</code></td><td>-r خانه‌اش را هم حذف می‌کند</td></tr>
+      <tr><td><code>groupadd</code></td><td>ساخت گروه</td><td><code>sudo groupadd developers</code></td><td></td></tr>
+      <tr><td><code>passwd</code></td><td>تغییر رمز</td><td><code>passwd</code> یا <code>sudo passwd ali</code></td><td></td></tr>
+      <tr><td><code>groups</code></td><td>گروه‌های یک کاربر</td><td><code>groups ali</code></td><td></td></tr>
+      <tr><td><code>cat /etc/passwd</code></td><td>لیست کاربران</td><td></td><td>اطلاعات عمومی</td></tr>
+      <tr><td><code>last</code></td><td>آخرین لاگین‌ها</td><td><code>last -a</code></td><td></td></tr>
+      <tr><td><code>who</code></td><td>کاربران لاگین‌شده</td><td><code>who</code></td><td></td></tr>
+      <tr><td><code>w</code></td><td>چه کسی چه کار می‌کند</td><td><code>w</code></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l07-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> می‌خواهی یک کاربر به نام deploy بسازی که بتواند با sudo کار کند.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>sudo adduser deploy
+sudo usermod -aG sudo deploy
+# تست:
+su - deploy
+sudo whoami   # باید root چاپ کند</code></pre>
+
+  <h2 id="l07-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: کار کردن دائمی با root.</p>
+  <p>✅ درست: کاربر عادی + sudo.</p>
+
+  <p>❌ اشتباه: <code>usermod -G</code> به‌جای <code>-aG</code> (گروه‌های قبلی پاک می‌شوند).</p>
+  <p>✅ درست: همیشه <code>-aG</code> برای اضافه کردن به گروه.</p>
+
+  <h2 id="l07-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>یک کاربر آزمایشی بساز و به گروه sudo اضافه‌اش کن.</li>
+    <li>با آن کاربر لاگین کن و یک دستور sudo اجرا کن.</li>
+  </ol>
+
+  <h2 id="l07-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>root را فقط وقتی لازم است استفاده کن.</li>
+    <li>adduser + usermod -aG sudo الگوی استاندارد است.</li>
+  </ul>
+  <p>حالا می‌دانی چطور کاربر امن بسازی.</p>
+
+  <!-- ==================== درس ۰۸ ==================== -->
+  <h1 id="lesson-08">&#128039; درس ۰۸: مجوزها (Permissions)</h1>
+
+  <h2 id="l08-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>معنی rwx، چطور مجوز بدهی و هرگز 777 نکنی.</p>
+  <ul>
+    <li>مجوز فایل و پوشه</li>
+    <li>chmod عددی و حرفی</li>
+    <li>chown و umask</li>
+  </ul>
+
+  <h2 id="l08-concepts">مفاهیم پایه</h2>
+  <p>هر فایل سه دسته‌ی مجوز دارد: <strong>صاحب (u)</strong>، <strong>گروه (g)</strong>، <strong>دیگران (o)</strong>.</p>
+  <p>هر دسته سه مجوز: <strong>r</strong> (خواندن)، <strong>w</strong> (نوشتن)، <strong>x</strong> (اجرا).</p>
+  <table>
+    <thead>
+      <tr><th>عدد</th><th>مجوز</th><th>معنی برای فایل</th><th>معنی برای پوشه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>4</td><td>r</td><td>خواندن محتوا</td><td>لیست کردن فایل‌ها</td></tr>
+      <tr><td>2</td><td>w</td><td>تغییر محتوا</td><td>ساخت/حذف فایل داخل</td></tr>
+      <tr><td>1</td><td>x</td><td>اجرا</td><td>ورود به پوشه (cd)</td></tr>
+    </tbody>
+  </table>
+  <p>مثال رایج:</p>
+  <ul>
+    <li><code>644</code> → rw-r--r-- (فایل معمولی)</li>
+    <li><code>755</code> → rwxr-xr-x (اسکریپت یا پوشه)</li>
+    <li><code>600</code> → rw------- (فایل محرمانه مثل .env یا کلید SSH)</li>
+  </ul>
+
+  <blockquote class="warn">
+    <strong>هشدار امنیتی:</strong> هرگز <code>chmod 777</code> نکن. این یعنی همه می‌توانند بخوانند، بنویسند و اجرا کنند.
+  </blockquote>
+
+  <h2 id="l08-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ls -l</code></td><td>دیدن مجوزها</td><td><code>ls -l file.txt</code></td><td></td></tr>
+      <tr><td><code>chmod 644</code></td><td>تنظیم عددی</td><td><code>chmod 644 index.html</code></td><td></td></tr>
+      <tr><td><code>chmod 755</code></td><td>قابل اجرا</td><td><code>chmod 755 deploy.sh</code></td><td></td></tr>
+      <tr><td><code>chmod 600</code></td><td>فقط صاحب</td><td><code>chmod 600 .env</code></td><td>برای اسرار</td></tr>
+      <tr><td><code>chmod u+x</code></td><td>حرفی — اضافه کردن اجرا به صاحب</td><td><code>chmod u+x script.sh</code></td><td></td></tr>
+      <tr><td><code>chmod -R</code></td><td>بازگشتی</td><td><code>chmod -R 755 myapp/</code></td><td>مراقب باش</td></tr>
+      <tr><td><code>chown</code></td><td>تغییر صاحب</td><td><code>sudo chown deploy:deploy app/</code></td><td></td></tr>
+      <tr><td><code>chown -R</code></td><td>بازگشتی</td><td><code>sudo chown -R www-data:www-data /var/www</code></td><td></td></tr>
+      <tr><td><code>umask</code></td><td>مجوز پیش‌فرض</td><td><code>umask</code></td><td>معمولاً 0022</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l08-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> فایل <code>.env</code> داری و می‌خواهی فقط خودت بتوانی آن را بخوانی.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>chmod 600 .env
+ls -l .env
+# -rw------- 1 ali ali 128 Oct 17 10:00 .env</code></pre>
+
+  <h2 id="l08-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: <code>chmod 777 -R /var/www</code></p>
+  <p>✅ درست: مجوزهای حداقلی لازم را بده (معمولاً 755 برای پوشه و 644 برای فایل).</p>
+
+  <p>❌ اشتباه: فراموش کردن x برای پوشه‌ها.</p>
+  <p>✅ درست: بدون x نمی‌توانی وارد پوشه شوی حتی اگر r داشته باشی.</p>
+
+  <h2 id="l08-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>یک فایل بساز و مجوز آن را 600 کن.</li>
+    <li>یک اسکریپت بساز و آن را قابل اجرا کن (chmod +x).</li>
+  </ol>
+
+  <h2 id="l08-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>644 برای فایل، 755 برای پوشه/اسکریپت، 600 برای اسرار.</li>
+    <li>هرگز 777.</li>
+    <li>chown برای تغییر مالکیت.</li>
+  </ul>
+  <p>مجوزها اولین خط دفاعی تو هستند.</p>
+
+  <!-- ==================== درس ۰۹ ==================== -->
+  <h1 id="lesson-09">&#128039; درس ۰۹: SSH و اتصال امن به سرور</h1>
+
+  <h2 id="l09-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>اتصال امن، انتقال فایل و قفل کردن SSH تا فقط با کلید وارد شوی.</p>
+  <ul>
+    <li>ssh، scp، rsync</li>
+    <li>تولید و کپی کلید</li>
+    <li>سخت‌سازی SSH</li>
+  </ul>
+
+  <h2 id="l09-concepts">مفاهیم پایه</h2>
+  <p>SSH (Secure Shell) پروتکل استاندارد اتصال امن به سرور است. دو روش احراز هویت دارد: رمز عبور و کلید عمومی/خصوصی. روش کلید بسیار امن‌تر است.</p>
+
+  <h2 id="l09-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ssh user@host</code></td><td>اتصال</td><td><code>ssh deploy@192.168.1.50</code></td><td></td></tr>
+      <tr><td><code>ssh -p 2222</code></td><td>پورت غیرپیش‌فرض</td><td><code>ssh -p 2222 deploy@server</code></td><td></td></tr>
+      <tr><td><code>ssh-keygen -t ed25519</code></td><td>تولید کلید مدرن</td><td><code>ssh-keygen -t ed25519 -C "me@email.com"</code></td><td>ترجیح بر rsa</td></tr>
+      <tr><td><code>ssh-copy-id</code></td><td>کپی کلید به سرور</td><td><code>ssh-copy-id deploy@server</code></td><td></td></tr>
+      <tr><td><code>scp</code></td><td>کپی فایل روی SSH</td><td><code>scp file.txt deploy@server:/home/deploy/</code></td><td></td></tr>
+      <tr><td><code>scp -r</code></td><td>کپی پوشه</td><td><code>scp -r dist/ deploy@server:/var/www/</code></td><td></td></tr>
+      <tr><td><code>rsync -avz</code></td><td>همگام‌سازی هوشمند</td><td><code>rsync -avz --delete dist/ deploy@server:/var/www/app/</code></td><td>بهتر از scp برای دیپلوی</td></tr>
+      <tr><td><code>ssh -L</code></td><td>تونل محلی</td><td><code>ssh -L 5432:localhost:5432 deploy@server</code></td><td>دسترسی به دیتابیس ریموت</td></tr>
+    </tbody>
+  </table>
+
+  <h3>سخت‌سازی SSH (در /etc/ssh/sshd_config)</h3>
+<pre><code>PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+Port 2222          # اختیاری اما مفید</code></pre>
+  <p>بعد از تغییر:</p>
+<pre><code>sudo systemctl reload sshd</code></pre>
+
+  <blockquote class="warn">
+    <strong>هشدار:</strong> قبل از غیرفعال کردن PasswordAuthentication مطمئن شو کلیدت کار می‌کند، وگرنه ممکن است از سرور قفل شوی.
+  </blockquote>
+
+  <h2 id="l09-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> می‌خواهی بدون رمز به سرور وصل شوی و فایل‌ها را همگام کنی.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>ssh-keygen -t ed25519
+ssh-copy-id deploy@server
+rsync -avz --progress ./dist/ deploy@server:/var/www/myapp/</code></pre>
+
+  <h2 id="l09-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: گذاشتن کلید خصوصی روی سرور یا در گیت.</p>
+  <p>✅ درست: کلید خصوصی فقط روی ماشین خودت بماند (مجوز 600).</p>
+
+  <p>❌ اشتباه: باز گذاشتن پورت ۲۲ با رمز عبور روی اینترنت.</p>
+  <p>✅ درست: فقط کلید + در صورت امکان تغییر پورت + fail2ban.</p>
+
+  <h2 id="l09-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>یک کلید ed25519 بساز.</li>
+    <li>با scp یک فایل به سرور بفرست (اگر سرور داری).</li>
+  </ol>
+
+  <h2 id="l09-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>همیشه از کلید SSH استفاده کن، نه رمز.</li>
+    <li>rsync بهترین ابزار همگام‌سازی است.</li>
+    <li>sshd_config را سخت‌سازی کن.</li>
+  </ul>
+  <p>حالا می‌توانی امن به سرور وصل شوی.</p>
+
+  <!-- ==================== بخش سوم ==================== -->
+  <h1 id="processes">بخش سوم: پروسه‌ها و منابع سیستم</h1>
+
+  <h1 id="lesson-10">&#128039; درس ۱۰: پروسه‌ها (Processes)</h1>
+
+  <h2 id="l10-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>دیدن، متوقف کردن و مدیریت پروسه‌ها — و اجرای برنامه‌های طولانی با tmux.</p>
+  <ul>
+    <li>ps، top، htop</li>
+    <li>kill و سیگنال‌ها</li>
+    <li>jobs، nohup، tmux، screen</li>
+  </ul>
+
+  <h2 id="l10-concepts">مفاهیم پایه</h2>
+  <p>هر برنامه‌ی در حال اجرا یک یا چند <strong>پروسه</strong> است و یک PID منحصربه‌فرد دارد. سیگنال‌ها راه ارتباط با پروسه‌ها هستند:</p>
+  <ul>
+    <li><code>SIGTERM (15)</code>: درخواست توقف مؤدبانه (پیش‌فرض kill)</li>
+    <li><code>SIGKILL (9)</code>: کشتن اجباری (پروسه‌ نمی‌تواند نادیده بگیرد)</li>
+    <li><code>SIGHUP (1)</code>: اغلب برای reload تنظیمات</li>
+  </ul>
+
+  <h2 id="l10-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ps aux</code></td><td>تمام پروسه‌ها</td><td><code>ps aux | grep node</code></td><td></td></tr>
+      <tr><td><code>ps -ef</code></td><td>فرمت استاندارد</td><td><code>ps -ef | grep nginx</code></td><td></td></tr>
+      <tr><td><code>top</code></td><td>مانیتور زنده</td><td><code>top</code></td><td>با q خارج شو</td></tr>
+      <tr><td><code>htop</code></td><td>نسخه‌ی بهتر top</td><td><code>htop</code></td><td>نیاز به نصب</td></tr>
+      <tr><td><code>kill PID</code></td><td>ارسال SIGTERM</td><td><code>kill 1234</code></td><td></td></tr>
+      <tr><td><code>kill -9 PID</code></td><td>SIGKILL</td><td><code>kill -9 1234</code></td><td>آخرین راه‌حل</td></tr>
+      <tr><td><code>killall name</code></td><td>کشتن بر اساس نام</td><td><code>killall node</code></td><td></td></tr>
+      <tr><td><code>pkill</code></td><td>کشتن با الگو</td><td><code>pkill -f "node app.js"</code></td><td></td></tr>
+      <tr><td><code>nohup cmd &</code></td><td>اجرا بعد از بستن ترمینال</td><td><code>nohup node server.js &</code></td><td></td></tr>
+      <tr><td><code>jobs</code></td><td>کارهای پس‌زمینه</td><td><code>jobs</code></td><td></td></tr>
+      <tr><td><code>fg</code></td><td>آوردن به پیش‌زمینه</td><td><code>fg %1</code></td><td></td></tr>
+      <tr><td><code>bg</code></td><td>ادامه در پس‌زمینه</td><td><code>bg %1</code></td><td></td></tr>
+      <tr><td><code>tmux</code></td><td>ترمینال چندplex</td><td><code>tmux new -s deploy</code></td><td>بسیار مهم</td></tr>
+      <tr><td><code>tmux attach -t deploy</code></td><td>وصل شدن مجدد</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3>tmux سریع</h3>
+<pre><code>tmux new -s myapp          # نشست جدید
+# Ctrl+b سپس d            # جدا شدن (detach)
+tmux ls                    # لیست نشست‌ها
+tmux attach -t myapp       # وصل شدن مجدد</code></pre>
+
+  <h2 id="l10-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> اپ Node را اجرا کردی و می‌خواهی حتی بعد از بستن SSH زنده بماند.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل (بهترین):</span></p>
+<pre><code>tmux new -s nodeapp
+node server.js
+# Ctrl+b سپس d
+# بعداً:
+tmux attach -t nodeapp</code></pre>
+
+  <h2 id="l10-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: اجرای اپ طولانی مستقیم در SSH بدون tmux/systemd.</p>
+  <p>✅ درست: tmux برای کار دستی، systemd برای سرویس دائمی.</p>
+
+  <p>❌ اشتباه: همیشه <code>kill -9</code>.</p>
+  <p>✅ درست: اول <code>kill</code> (SIGTERM)، اگر جواب نداد <code>kill -9</code>.</p>
+
+  <h2 id="l10-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>با ps تمام پروسه‌های مربوط به bash را پیدا کن.</li>
+    <li>یک نشست tmux بساز، دستوری اجرا کن، detach کن و دوباره attach کن.</li>
+  </ol>
+
+  <h2 id="l10-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>ps و top برای دیدن، kill برای متوقف کردن.</li>
+    <li>tmux برای نگه‌داشتن نشست‌های طولانی ضروری است.</li>
+  </ul>
+  <p>حالا پروسه‌ها تحت کنترل تو هستند.</p>
+
+  <!-- ==================== درس ۱۱ ==================== -->
+  <h1 id="lesson-11">&#128039; درس ۱۱: منابع سیستم</h1>
+
+  <h2 id="l11-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>بفهمی CPU، RAM و دیسک چه وضعی دارند و چه کسی منابع را می‌خورد.</p>
+  <ul>
+    <li>free، df، du</li>
+    <li>load average</li>
+    <li>lsof و iotop</li>
+  </ul>
+
+  <h2 id="l11-concepts">مفاهیم پایه</h2>
+  <p><strong>Load Average</strong> میانگین تعداد پروسه‌های در صف اجرا در ۱، ۵ و ۱۵ دقیقه‌ی گذشته است. روی یک سرور ۴ هسته‌ای، load حدود ۴ یعنی اشباع کامل.</p>
+
+  <h2 id="l11-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>free -h</code></td><td>حافظه</td><td><code>free -h</code></td><td>human-readable</td></tr>
+      <tr><td><code>df -h</code></td><td>فضای دیسک</td><td><code>df -h</code></td><td></td></tr>
+      <tr><td><code>du -sh *</code></td><td>حجم پوشه‌های فعلی</td><td><code>du -sh /var/*</code></td><td></td></tr>
+      <tr><td><code>du -h --max-depth=1</code></td><td>عمق محدود</td><td><code>du -h --max-depth=1 /home</code></td><td></td></tr>
+      <tr><td><code>uptime</code></td><td>load average</td><td><code>uptime</code></td><td></td></tr>
+      <tr><td><code>vmstat 1</code></td><td>آمار حافظه و CPU</td><td><code>vmstat 1 5</code></td><td></td></tr>
+      <tr><td><code>lsof</code></td><td>فایل‌های باز</td><td><code>lsof -i :3000</code></td><td>چه کسی پورت را گرفته</td></tr>
+      <tr><td><code>ulimit -a</code></td><td>محدودیت‌های کاربر</td><td><code>ulimit -n</code></td><td>تعداد فایل باز</td></tr>
+      <tr><td><code>nproc</code></td><td>تعداد هسته</td><td><code>nproc</code></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l11-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> می‌خواهی ببینی چه چیزی پورت ۳۰۰۰ را اشغال کرده.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>sudo lsof -i :3000
+# یا
+sudo ss -tlnp | grep 3000</code></pre>
+
+  <h2 id="l11-mistakes">⚠️ اشتباهات رایج</h2>
+  <p>❌ اشتباه: وحشت از اینکه free حافظه‌ی کمی نشان می‌دهد.</p>
+  <p>✅ درست: لینوکس حافظه‌ی آزاد را برای cache استفاده می‌کند. به ستون available نگاه کن.</p>
+
+  <h2 id="l11-exercises">✏️ تمرین</h2>
+  <ol>
+    <li>با free و df وضعیت RAM و دیسک را ببین.</li>
+    <li>با du بزرگ‌ترین پوشه‌های /var را پیدا کن.</li>
+  </ol>
+
+  <h2 id="l11-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>free -h، df -h، du -sh ابزارهای روزمره هستند.</li>
+    <li>lsof برای پیدا کردن صاحب پورت و فایل باز ضروری است.</li>
+  </ul>
+  <p>حالا می‌دانی سرور نفس می‌کشد یا نه.</p>
+
+  <!-- ==================== بخش چهارم ==================== -->
+  <h1 id="packages-services">بخش چهارم: بسته‌ها و سرویس‌ها</h1>
+
+  <h1 id="lesson-12">&#128039; درس ۱۲: مدیریت بسته‌ها</h1>
+
+  <h2 id="l12-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>نصب، به‌روزرسانی و حذف نرم‌افزار با apt (و اشاره‌ای به dnf).</p>
+
+  <h2 id="l12-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th><th>توضیح کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>sudo apt update</code></td><td>به‌روزرسانی فهرست بسته‌ها</td><td></td><td>همیشه قبل از upgrade</td></tr>
+      <tr><td><code>sudo apt upgrade</code></td><td>ارتقای بسته‌ها</td><td></td><td></td></tr>
+      <tr><td><code>sudo apt install pkg</code></td><td>نصب</td><td><code>sudo apt install nginx</code></td><td></td></tr>
+      <tr><td><code>sudo apt remove pkg</code></td><td>حذف</td><td><code>sudo apt remove nginx</code></td><td></td></tr>
+      <tr><td><code>sudo apt purge pkg</code></td><td>حذف با کانفیگ</td><td></td><td></td></tr>
+      <tr><td><code>apt search keyword</code></td><td>جست‌وجو</td><td><code>apt search python3-</code></td><td></td></tr>
+      <tr><td><code>apt show pkg</code></td><td>جزئیات بسته</td><td><code>apt show nginx</code></td><td></td></tr>
+      <tr><td><code>dpkg -l</code></td><td>لیست نصب‌شده‌ها</td><td><code>dpkg -l | grep node</code></td><td></td></tr>
+      <tr><td><code>apt list --upgradable</code></td><td>بسته‌های قابل ارتقا</td><td></td><td></td></tr>
+      <tr><td><code>sudo apt autoremove</code></td><td>پاک کردن وابستگی‌های بی‌استفاده</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  <p>برای CentOS/RHEL/Alma از <code>dnf</code> یا <code>yum</code> استفاده کن (دستورها مشابه هستند: <code>dnf install</code>، <code>dnf update</code>).</p>
+
+  <h2 id="l12-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>همیشه <code>apt update</code> قبل از install/upgrade.</li>
+    <li>از مخازن رسمی استفاده کن مگر دلیل خوبی داشته باشی.</li>
+  </ul>
+
+  <!-- ==================== درس ۱۳ ==================== -->
+  <h1 id="lesson-13">&#128039; درس ۱۳: systemd و مدیریت سرویس‌ها</h1>
+
+  <h2 id="l13-goals">در این درس چه یاد می‌گیری؟</h2>
+  <p>راه‌اندازی، توقف و فعال‌سازی سرویس‌ها و ساخت unit file برای اپ خودت.</p>
+
+  <h2 id="l13-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>systemctl start name</code></td><td>شروع</td><td><code>sudo systemctl start nginx</code></td></tr>
+      <tr><td><code>systemctl stop name</code></td><td>توقف</td><td></td></tr>
+      <tr><td><code>systemctl restart name</code></td><td>ری‌استارت</td><td></td></tr>
+      <tr><td><code>systemctl reload name</code></td><td>بارگذاری مجدد کانفیگ</td><td></td></tr>
+      <tr><td><code>systemctl status name</code></td><td>وضعیت</td><td><code>systemctl status nginx</code></td></tr>
+      <tr><td><code>systemctl enable name</code></td><td>شروع خودکار بعد از بوت</td><td></td></tr>
+      <tr><td><code>systemctl disable name</code></td><td>غیرفعال کردن شروع خودکار</td><td></td></tr>
+      <tr><td><code>journalctl -u name</code></td><td>لاگ سرویس</td><td><code>journalctl -u nginx -f</code></td></tr>
+      <tr><td><code>journalctl -xe</code></td><td>آخرین خطاها</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3>نمونه‌ی unit file برای اپ Node</h3>
+<pre><code># /etc/systemd/system/myapp.service
+[Unit]
+Description=My Node.js App
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/home/deploy/myapp
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl enable --now myapp
+sudo systemctl status myapp</code></pre>
+
+  <h2 id="l13-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>systemctl ابزار اصلی مدیریت سرویس است.</li>
+    <li>برای اپ خودت حتماً unit file بنویس تا بعد از ری‌استارت سرور هم بالا بیاید.</li>
+  </ul>
+
+  <!-- ==================== بخش پنجم ==================== -->
+  <h1 id="network">بخش پنجم: شبکه برای برنامه‌نویس</h1>
+
+  <h1 id="lesson-14">&#128039; درس ۱۴: مفاهیم پایه‌ی شبکه</h1>
+
+  <h2 id="l14-concepts">مفاهیم پایه</h2>
+  <ul>
+    <li><strong>IP</strong>: آدرس منطقی ماشین</li>
+    <li><strong>Port</strong>: شماره‌ی سرویس روی یک IP (۰ تا ۶۵۵۳۵)</li>
+    <li><strong>localhost / 127.0.0.1</strong>: خود ماشین</li>
+    <li><strong>0.0.0.0</strong>: گوش دادن روی تمام اینترفیس‌ها</li>
+  </ul>
+  <p>پورت‌های رایج برای برنامه‌نویس:</p>
+  <table>
+    <thead>
+      <tr><th>پورت</th><th>سرویس</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>22</td><td>SSH</td></tr>
+      <tr><td>80</td><td>HTTP</td></tr>
+      <tr><td>443</td><td>HTTPS</td></tr>
+      <tr><td>3000 / 8000 / 8080</td><td>اپ‌های توسعه</td></tr>
+      <tr><td>5432</td><td>PostgreSQL</td></tr>
+      <tr><td>3306</td><td>MySQL</td></tr>
+      <tr><td>6379</td><td>Redis</td></tr>
+    </tbody>
+  </table>
+
+  <h1 id="lesson-15">&#128039; درس ۱۵: ابزارهای شبکه</h1>
+
+  <h2 id="l15-commands">📌 دستورهای مهم این درس</h2>
+  <table>
+    <thead>
+      <tr><th>دستور</th><th>کاربرد</th><th>مثال واقعی</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ip a</code></td><td>آدرس‌های IP</td><td><code>ip a</code></td></tr>
+      <tr><td><code>ip r</code></td><td>جدول مسیریابی</td><td><code>ip r</code></td></tr>
+      <tr><td><code>ping</code></td><td>تست اتصال</td><td><code>ping -c 4 8.8.8.8</code></td></tr>
+      <tr><td><code>curl</code></td><td>درخواست HTTP</td><td><code>curl -I https://example.com</code></td></tr>
+      <tr><td><code>curl -X POST</code></td><td>درخواست POST</td><td><code>curl -X POST -d '{"a":1}' -H 'Content-Type: application/json' http://localhost:3000/api</code></td></tr>
+      <tr><td><code>wget</code></td><td>دانلود فایل</td><td><code>wget https://example.com/file.tar.gz</code></td></tr>
+      <tr><td><code>ss -tlnp</code></td><td>پورت‌های در حال گوش دادن</td><td><code>ss -tlnp</code></td></tr>
+      <tr><td><code>dig</code></td><td>کوئری DNS</td><td><code>dig example.com</code></td></tr>
+      <tr><td><code>nc</code></td><td>netcat — تست پورت</td><td><code>nc -zv localhost 3000</code></td></tr>
+      <tr><td><code>ufw</code></td><td>فایروال ساده اوبونتو</td><td><code>sudo ufw allow 80/tcp</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="l15-scenarios">💡 سناریوی واقعی</h2>
+  <p><span class="scenario-goal">🎯 سناریو:</span> می‌خواهی ببینی API محلی‌ات جواب می‌دهد یا نه.</p>
+  <p><span class="scenario-fix">🔧 راه‌حل:</span></p>
+<pre><code>curl -s http://localhost:3000/health | jq
+ss -tlnp | grep 3000</code></pre>
+
+  <h2 id="l15-summary">📝 خلاصه‌ی درس</h2>
+  <ul>
+    <li>curl ابزار اصلی تست API است.</li>
+    <li>ss جایگزین مدرن netstat است.</li>
+    <li>ufw ساده‌ترین راه مدیریت فایروال در اوبونتو است.</li>
+  </ul>
+
+  <!-- ==================== بخش ششم ==================== -->
+  <h1 id="bash">بخش ششم: Bash Scripting برای برنامه‌نویس</h1>
+
+  <h1 id="lesson-16">&#128039; درس ۱۶: مبانی Bash Script</h1>
+
+  <h2 id="l16-concepts">مفاهیم پایه</h2>
+  <p>اسکریپت Bash یعنی چند دستور که در یک فایل ذخیره شده و با یک فرمان اجرا می‌شوند. برای اتوماسیون دیپلوی، بکاپ و پایش عالی است.</p>
+<pre><code>#!/bin/bash
+# این خط shebang است — به سیستم می‌گوید با bash اجرا کند
+
+echo "Hello, $USER"
+name="myapp"
+echo "Deploying $name"</code></pre>
+<pre><code>chmod +x deploy.sh
+./deploy.sh</code></pre>
+
+  <h1 id="lesson-17">&#128039; درس ۱۷: کنترل جریان در Bash</h1>
+<pre><code>if [ -f "package.json" ]; then
+  echo "Node project found"
+elif [ -f "requirements.txt" ]; then
+  echo "Python project found"
+else
+  echo "Unknown project"
+fi
+
+for file in *.log; do
+  echo "Processing $file"
+done
+
+while read -r line; do
+  echo "$line"
+done < input.txt</code></pre>
+
+  <h1 id="lesson-18">&#128039; درس ۱۸: آرگومان‌ها و توابع</h1>
+<pre><code>#!/bin/bash
+# استفاده: ./script.sh arg1 arg2
+
+echo "Script name: $0"
+echo "First arg: $1"
+echo "All args: $@"
+echo "Number of args: $#"
+
+greet() {
+  local name=$1
+  echo "Hello, $name"
+}
+greet "World"
+
+# کد خروج آخرین دستور
+some_command
+if [ $? -eq 0 ]; then
+  echo "Success"
+fi</code></pre>
+
+  <h1 id="lesson-19">&#128039; درس ۱۹: ابزارهای متنی قدرتمند</h1>
+  <table>
+    <thead>
+      <tr><th>ابزار</th><th>کاربرد</th><th>مثال</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>sed</code></td><td>جایگزینی متن</td><td><code>sed -i 's/old/new/g' file.txt</code></td></tr>
+      <tr><td><code>awk</code></td><td>پردازش ستونی</td><td><code>awk -F: '{print $1}' /etc/passwd</code></td></tr>
+      <tr><td><code>xargs</code></td><td>تبدیل ورودی به آرگومان</td><td><code>find . -name "*.tmp" | xargs rm</code></td></tr>
+      <tr><td><code>tr</code></td><td>ترجمه‌ی کاراکتر</td><td><code>echo "HELLO" | tr 'A-Z' 'a-z'</code></td></tr>
+      <tr><td><code>|</code></td><td>پایپ</td><td><code>cat file | grep error | wc -l</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== بخش هفتم ==================== -->
+  <h1 id="daily">بخش هفتم: کارهای روزمره‌ی برنامه‌نویس</h1>
+
+  <h1 id="lesson-20">&#128039; درس ۲۰: cron و کارهای زمان‌بندی‌شده</h1>
+<pre><code>crontab -e
+# دقیقه ساعت روز ماه هفته دستور
+0 2 * * * /home/deploy/backup.sh
+*/5 * * * * /home/deploy/healthcheck.sh</code></pre>
+  <p>فرمت: <code>minute hour day-of-month month day-of-week</code></p>
+
+  <h1 id="lesson-21">&#128039; درس ۲۱: مدیریت لاگ‌ها</h1>
+  <ul>
+    <li><code>/var/log/syslog</code> یا <code>journalctl</code></li>
+    <li><code>/var/log/auth.log</code> برای لاگین‌ها</li>
+    <li><code>tail -f</code> + <code>grep</code></li>
+    <li>logrotate لاگ‌ها را می‌چرخاند تا دیسک پر نشود</li>
+  </ul>
+<pre><code>journalctl -u myapp --since "1 hour ago"
+journalctl -u myapp -f</code></pre>
+
+  <h1 id="lesson-22">&#128039; درس ۲۲: Git روی سرور</h1>
+<pre><code>git clone git@github.com:user/repo.git
+# برای دیپلوی ساده می‌توان از bare repo + hook استفاده کرد
+git init --bare /home/deploy/repos/myapp.git</code></pre>
+
+  <h1 id="lesson-23">&#128039; درس ۲۳: نصب و اجرای اپلیکیشن روی سرور</h1>
+  <h3>Node.js</h3>
+<pre><code>curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+node -v</code></pre>
+  <h3>اجرا با systemd (توصیه‌شده)</h3>
+  <p>همان unit file درس ۱۳.</p>
+  <h3>nginx به‌عنوان reverse proxy</h3>
+<pre><code># /etc/nginx/sites-available/myapp
+server {
+    listen 80;
+    server_name myapp.example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</code></pre>
+<pre><code>sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+  <h3>SSL با Let’s Encrypt</h3>
+<pre><code>sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d myapp.example.com</code></pre>
+
+  <!-- ==================== بخش هشتم ==================== -->
+  <h1 id="troubleshoot">بخش هشتم: عیب‌یابی و امنیت پایه</h1>
+
+  <h1 id="lesson-24">&#128039; درس ۲۴: عیب‌یابی (Troubleshooting)</h1>
+  <ol>
+    <li>آیا سرویس در حال اجراست؟ <code>systemctl status</code></li>
+    <li>لاگ چه می‌گوید؟ <code>journalctl -u ... -xe</code></li>
+    <li>پورت باز است؟ <code>ss -tlnp</code></li>
+    <li>منابع تمام شده؟ <code>free -h</code>، <code>df -h</code></li>
+    <li>مجوز درست است؟ <code>ls -l</code></li>
+  </ol>
+<pre><code>dmesg | tail          # پیام‌های Kernel
+strace -p PID         # دنبال کردن syscallها (پیشرفته)</code></pre>
+
+  <h1 id="lesson-25">&#128039; درس ۲۵: امنیت پایه‌ی سرور</h1>
+  <ul>
+    <li>همیشه سیستم را به‌روز نگه دار: <code>sudo apt update && sudo apt upgrade</code></li>
+    <li>SSH را سخت‌سازی کن (درس ۹)</li>
+    <li>فایروال را فعال کن:</li>
+  </ul>
+<pre><code>sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable</code></pre>
+  <ul>
+    <li>fail2ban برای جلوگیری از brute-force:</li>
+  </ul>
+<pre><code>sudo apt install fail2ban
+sudo systemctl enable --now fail2ban</code></pre>
+  <ul>
+    <li>با کاربر غیر-root کار کن</li>
+    <li>رمزهای قوی و در صورت امکان فقط کلید SSH</li>
+  </ul>
+
+  <!-- ==================== بخش نهم ==================== -->
+  <h1 id="finale">بخش نهم: جمع‌بندی و مسیر ادامه</h1>
+
+  <h1 id="lesson-26">&#128039; درس ۲۶: چک‌لیست یک برنامه‌نویس روی لینوکس</h1>
+
+  <h2>۲۵ دستوری که باید بلد باشی</h2>
+  <ol>
+    <li><code>pwd</code> / <code>cd</code> / <code>ls -lah</code></li>
+    <li><code>cp</code> / <code>mv</code> / <code>rm</code> / <code>mkdir -p</code></li>
+    <li><code>find</code> / <code>grep -rn</code></li>
+    <li><code>cat</code> / <code>less</code> / <code>tail -f</code></li>
+    <li><code>chmod</code> / <code>chown</code></li>
+    <li><code>ssh</code> / <code>scp</code> / <code>rsync</code></li>
+    <li><code>ps aux</code> / <code>top</code> / <code>kill</code></li>
+    <li><code>free -h</code> / <code>df -h</code> / <code>du -sh</code></li>
+    <li><code>apt update && apt install</code></li>
+    <li><code>systemctl status/start/stop/enable</code></li>
+    <li><code>journalctl -u ... -f</code></li>
+    <li><code>curl</code> / <code>ss -tlnp</code></li>
+    <li><code>tmux</code></li>
+    <li><code>crontab -e</code></li>
+    <li><code>sudo</code></li>
+  </ol>
+
+  <h2>۱۰ اشتباه رایج که نباید بکنی</h2>
+  <ol>
+    <li>کار کردن با root برای کارهای روزمره</li>
+    <li><code>chmod 777</code></li>
+    <li><code>rm -rf /</code> یا مسیر اشتباه</li>
+    <li>باز گذاشتن SSH با رمز عبور روی اینترنت</li>
+    <li>ذخیره کردن رمز و کلید در گیت</li>
+    <li>اجرای اپ بدون systemd یا process manager</li>
+    <li>نادیده گرفتن لاگ‌ها</li>
+    <li>به‌روزرسانی نکردن سیستم</li>
+    <li>فایروال خاموش</li>
+    <li>کپی‌پیست دستور بدون فهمیدن</li>
+  </ol>
+
+  <hr>
+
+  <h1 id="checklist-50">📝 چک‌لیست ۵۰ دستور ضروری لینوکس برای برنامه‌نویس</h1>
+  <table>
+    <thead>
+      <tr><th>#</th><th>دستور</th><th>کاربرد کوتاه</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>pwd</code></td><td>مسیر فعلی</td></tr>
+      <tr><td>2</td><td><code>ls -lah</code></td><td>لیست فایل‌ها</td></tr>
+      <tr><td>3</td><td><code>cd</code></td><td>تغییر پوشه</td></tr>
+      <tr><td>4</td><td><code>mkdir -p</code></td><td>ساخت پوشه تو در تو</td></tr>
+      <tr><td>5</td><td><code>touch</code></td><td>ساخت فایل خالی</td></tr>
+      <tr><td>6</td><td><code>cp -r</code></td><td>کپی</td></tr>
+      <tr><td>7</td><td><code>mv</code></td><td>جابه‌جایی / تغییر نام</td></tr>
+      <tr><td>8</td><td><code>rm -r</code></td><td>حذف</td></tr>
+      <tr><td>9</td><td><code>find</code></td><td>جست‌وجوی فایل</td></tr>
+      <tr><td>10</td><td><code>grep -rn</code></td><td>جست‌وجوی متن</td></tr>
+      <tr><td>11</td><td><code>cat</code></td><td>چاپ فایل</td></tr>
+      <tr><td>12</td><td><code>less</code></td><td>مشاهده فایل بزرگ</td></tr>
+      <tr><td>13</td><td><code>head / tail</code></td><td>ابتدا / انتهای فایل</td></tr>
+      <tr><td>14</td><td><code>tail -f</code></td><td>دنبال کردن لاگ</td></tr>
+      <tr><td>15</td><td><code>nano / vim</code></td><td>ویرایش</td></tr>
+      <tr><td>16</td><td><code>chmod</code></td><td>تغییر مجوز</td></tr>
+      <tr><td>17</td><td><code>chown</code></td><td>تغییر مالک</td></tr>
+      <tr><td>18</td><td><code>sudo</code></td><td>اجرا با دسترسی بالاتر</td></tr>
+      <tr><td>19</td><td><code>ssh</code></td><td>اتصال راه‌دور</td></tr>
+      <tr><td>20</td><td><code>scp / rsync</code></td><td>انتقال فایل</td></tr>
+      <tr><td>21</td><td><code>ps aux</code></td><td>لیست پروسه‌ها</td></tr>
+      <tr><td>22</td><td><code>top / htop</code></td><td>مانیتور منابع</td></tr>
+      <tr><td>23</td><td><code>kill</code></td><td>متوقف کردن پروسه</td></tr>
+      <tr><td>24</td><td><code>free -h</code></td><td>حافظه</td></tr>
+      <tr><td>25</td><td><code>df -h</code></td><td>فضای دیسک</td></tr>
+      <tr><td>26</td><td><code>du -sh</code></td><td>حجم پوشه</td></tr>
+      <tr><td>27</td><td><code>lsof -i</code></td><td>پورت‌ها و فایل‌های باز</td></tr>
+      <tr><td>28</td><td><code>apt update / install</code></td><td>مدیریت بسته</td></tr>
+      <tr><td>29</td><td><code>systemctl</code></td><td>مدیریت سرویس</td></tr>
+      <tr><td>30</td><td><code>journalctl</code></td><td>لاگ سرویس‌ها</td></tr>
+      <tr><td>31</td><td><code>ip a</code></td><td>آدرس شبکه</td></tr>
+      <tr><td>32</td><td><code>ss -tlnp</code></td><td>پورت‌های باز</td></tr>
+      <tr><td>33</td><td><code>curl</code></td><td>درخواست HTTP</td></tr>
+      <tr><td>34</td><td><code>ping</code></td><td>تست اتصال</td></tr>
+      <tr><td>35</td><td><code>dig / nslookup</code></td><td>DNS</td></tr>
+      <tr><td>36</td><td><code>ufw</code></td><td>فایروال</td></tr>
+      <tr><td>37</td><td><code>tmux</code></td><td>نشست پایدار</td></tr>
+      <tr><td>38</td><td><code>crontab</code></td><td>زمان‌بندی</td></tr>
+      <tr><td>39</td><td><code>tar -czvf</code></td><td>فشرده‌سازی</td></tr>
+      <tr><td>40</td><td><code>tar -xzvf</code></td><td>استخراج</td></tr>
+      <tr><td>41</td><td><code>wget</code></td><td>دانلود</td></tr>
+      <tr><td>42</td><td><code>history</code></td><td>تاریخچه دستورها</td></tr>
+      <tr><td>43</td><td><code>alias</code></td><td>نام مستعار</td></tr>
+      <tr><td>44</td><td><code>export</code></td><td>متغیر محیطی</td></tr>
+      <tr><td>45</td><td><code>source</code></td><td>اجرای فایل در shell فعلی</td></tr>
+      <tr><td>46</td><td><code>wc -l</code></td><td>شمارش خطوط</td></tr>
+      <tr><td>47</td><td><code>sort | uniq</code></td><td>مرتب و یکتا</td></tr>
+      <tr><td>48</td><td><code>cut / awk / sed</code></td><td>پردازش متن</td></tr>
+      <tr><td>49</td><td><code>tee</code></td><td>نوشتن همزمان در فایل و خروجی</td></tr>
+      <tr><td>50</td><td><code>man / --help</code></td><td>کمک</td></tr>
+    </tbody>
+  </table>
+
+  <h1 id="next-path">🚀 مسیر ادامه‌ی یادگیری</h1>
+  <p>بعد از مسلط شدن به این راهنما، مسیر طبیعی این است:</p>
+  <ol>
+    <li><strong>Docker</strong> — بسته‌بندی و اجرای اپ در کانتینر</li>
+    <li><strong>Docker Compose</strong> — اپ‌های چندسرویسه</li>
+    <li><strong>Kubernetes</strong> — ارکستراسیون در مقیاس بزرگ</li>
+    <li><strong>CI/CD</strong> (GitHub Actions، GitLab CI، Jenkins)</li>
+    <li><strong>Ansible</strong> یا Terraform — Infrastructure as Code</li>
+    <li><strong>مانیتورینگ</strong> (Prometheus، Grafana، Loki)</li>
+  </ol>
+  <p>منابع پیشنهادی:</p>
+  <ul>
+    <li>مستندات رسمی Ubuntu و man pages</li>
+    <li>کتاب The Linux Command Line</li>
+    <li>تمرین روی یک VPS واقعی (Hetzner، DigitalOcean، ...)</li>
+  </ul>
+  <p>تبریک — حالا ابزارهای اصلی یک برنامه‌نویس روی سرور لینوکس را در دست داری. هر روز یک دستور جدید را در کار واقعی‌ات به کار ببر تا ملکه ذهنت شود.</p>
+
+</div>
+</div>
+
+<button class="to-top" id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+
+<script>
+// Build TOC
+(function(){
+  var c=document.getElementById('content');
+  var t=document.getElementById('toc-list');
+  var hh=c.querySelectorAll('h1,h2,h3');
+  hh.forEach(function(h,i){
+    if(!h.id) h.id='s'+i;
+    var a=document.createElement('a');
+    a.href='#'+h.id;
+    a.textContent=h.textContent.replace(/^[\u{1F427}\u{1F4D8}\u{1F4D6}#\s]+/u,'').substring(0,60);
+    if(h.tagName==='H2') a.className='l2';
+    if(h.tagName==='H3') a.className='l3';
+    t.appendChild(a);
+  });
+})();
+
+// Scroll button
+var btn=document.getElementById('topBtn');
+window.addEventListener('scroll',function(){
+  btn.classList.toggle('show',window.scrollY>300);
+});
+</script>
+</body>
+</html>
